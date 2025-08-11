@@ -1,6 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
-from jinja2.nodes import FloorDiv
-from mypyc.primitives.tuple_ops import new_tuple_with_length_op
 from sqlalchemy.exc import SQLAlchemyError
 
 from data_models import db, User, Trip, PointOfInterest, Accommodation, Food
@@ -9,7 +6,7 @@ from data_models import db, User, Trip, PointOfInterest, Accommodation, Food
 class DataManager():
 
     # USER FUNCTIONS
-    # USER functions may not be used after implementation of authentication
+    # Will user functions be needed after implementation of authentication?
 
     def create_user(self, email, password):
         """Create and save a new user to the database.
@@ -27,9 +24,13 @@ class DataManager():
             db.session.add(new_user)
             db.session.commit()
             return new_user
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print("A database error occurred:", str(e))
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while creating user: ", str(e))
+            print("An unexpected error occurred:", str(e))
+        return None
 
 
     def get_users(self):
@@ -163,7 +164,7 @@ class DataManager():
         """
         trip = Trip.query.get(trip_id)
         if not trip:
-            return
+            return None
         if new_name:
             trip.name = new_name
         try:
@@ -217,7 +218,25 @@ class DataManager():
             return None
 
 
-    def add_point_of_interest(self, name, lat_long, address, price, comment, external_url):
+    def get_points_of_interest_by_trip(self, trip_id):
+        """Retrieve all points of interest from a specific trip in the database.
+
+        Returns:
+            list[Points of Interest]: A list of point_of_interest objects.
+            None: If an error occurred.
+        """
+        try:
+            points_of_interest = PointOfInterest.query.filter_by(trip_id=trip_id).all()
+            return points_of_interest
+        except SQLAlchemyError as e:
+            print("A database error occurred:", str(e))
+            return None
+        except Exception as e:
+            print("An unexpected error occurred:", str(e))
+            return None
+
+
+    def add_point_of_interest(self, trip_id, name, lat_long, address, price, comment, external_url):
         """Create and save a new point of interest to the database.
 
         Args:
@@ -233,6 +252,7 @@ class DataManager():
             None: If an error occurred.
         """
         new_point_of_interest = PointOfInterest(
+            trip_id=trip_id,
             name=name,
             lat_long=lat_long,
             address=address,
@@ -266,7 +286,7 @@ class DataManager():
         """
         point_of_interest = PointOfInterest.query.get(point_of_interest_id)
         if not point_of_interest:
-            return
+            return None
         if new_name:
             point_of_interest.name = new_name
         if lat_long:
@@ -328,7 +348,25 @@ class DataManager():
             return None
 
 
-    def add_accommodation(self, acc_type, lat_long, address, price, status, comment, external_url):
+    def get_accommodations_by_trip(self, trip_id):
+        """Retrieve all accommodations from a specific trip in the database.
+
+        Returns:
+            list[Accommodation]: A list of accommodation objects.
+            None: If an error occurred.
+        """
+        try:
+            accommodations = Accommodation.query.filter_by(trip_id=trip_id).all()
+            return accommodations
+        except SQLAlchemyError as e:
+            print("A database error occurred:", str(e))
+            return None
+        except Exception as e:
+            print("An unexpected error occurred:", str(e))
+            return None
+
+
+    def add_accommodation(self, trip_id, acc_type, lat_long, address, price, status, comment, external_url):
         """Create and save new accommodation to the database.
 
         Args:
@@ -345,6 +383,7 @@ class DataManager():
             None: If an error occurred.
         """
         new_accommodation = Accommodation(
+            trip_id=trip_id,
             type=acc_type,
             lat_long=lat_long,
             address=address,
@@ -380,7 +419,7 @@ class DataManager():
         """
         accommodation = Accommodation.query.get(accommodation_id)
         if not accommodation:
-            return
+            return None
         if acc_type:
             accommodation.type = acc_type
         if lat_long:
@@ -444,7 +483,25 @@ class DataManager():
             return None
 
 
-    def add_food(self, food_type, lat_long, address, comment, external_url):
+    def get_foods_by_trip(self, trip_id):
+        """Retrieve all food from a specific trip in the database.
+
+        Returns:
+            list[Food]: A list of food objects.
+            None: If an error occurred.
+        """
+        try:
+            foods = Food.query.filter_by(trip_id=trip_id).all()
+            return foods
+        except SQLAlchemyError as e:
+            print("A database error occurred:", str(e))
+            return None
+        except Exception as e:
+            print("An unexpected error occurred:", str(e))
+            return None
+
+
+    def add_food(self, trip_id, food_type, lat_long, address, comment, external_url):
         """Create and save new food to the database.
 
         Args:
@@ -459,6 +516,7 @@ class DataManager():
             None: If an error occurred.
         """
         new_food = Food(
+            trip_id=trip_id,
             type=food_type,
             lat_long=lat_long,
             address=address,
@@ -490,7 +548,7 @@ class DataManager():
         """
         food = Food.query.get(food_id)
         if not food:
-            return
+            return None
         if food_type:
             food.type = food_type
         if lat_long:
@@ -522,7 +580,7 @@ class DataManager():
         """
         try:
             food_deleted = Food.query.filter(
-                Accommodation.id == food_id).delete()
+                Food.id == food_id).delete()
             db.session.commit()
             return food_deleted > 0  # returns True if a movie was deleted
         except Exception as e:
