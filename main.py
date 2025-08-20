@@ -1,10 +1,12 @@
 import os
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 from data_manager import DataManager
 from data_models import db
 
 app = Flask(__name__)
+CORS(app)
 
 # Build absolute path to database
 basedir = os.path.abspath(os.path.dirname(__file__))
