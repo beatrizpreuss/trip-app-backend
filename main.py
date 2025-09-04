@@ -45,6 +45,13 @@ def create_trip():
     return jsonify({"trip": trip.to_dict()}), 201
 
 
+@app.route('/trips/<int:trip_id>', methods=['DELETE'])
+def delete_trip(trip_id):
+    """Deletes an entire trip from the database. """
+    data_manager.delete_trip(trip_id)
+    return jsonify({"message": "Trip deleted", "trip_id": trip_id}), 200
+
+
 @app.route('/trips/<int:trip_id>', methods=['GET'])
 def open_trip(trip_id):
     """ Retrieves and displays all tables from the trip with the specified ID. """
