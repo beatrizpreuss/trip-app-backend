@@ -58,14 +58,18 @@ def open_trip(trip_id):
     trip = data_manager.open_trip(trip_id)
     if not trip:
         return jsonify({"error": "Trip not found"}), 404
-    pois = data_manager.get_points_of_interest_by_trip(trip_id)
-    accommodations = data_manager.get_accommodations_by_trip(trip_id)
-    foods = data_manager.get_foods_by_trip(trip_id)
+    explore = data_manager.get_explore_by_trip(trip_id)
+    stays = data_manager.get_stays_by_trip(trip_id)
+    eat_drink = data_manager.get_eat_drink_by_trip(trip_id)
+    essentials = data_manager.get_essentials_by_trip(trip_id)
+    getting_around = data_manager.get_getting_around_by_trip(trip_id)
     return jsonify({
         "trip": trip.to_dict(),
-        "points_of_interest": [poi.to_dict() for poi in pois],
-        "accommodations": [acc.to_dict() for acc in accommodations],
-        "foods": [food.to_dict() for food in foods]
+        "explore": [expl.to_dict() for expl in explore],
+        "stays": [stay.to_dict() for stay in stays],
+        "eat_drink": [eat.to_dict() for eat in eat_drink],
+        "essentials": [essential.to_dict() for essential in essentials],
+        "getting_around": [around.to_dict() for around in getting_around]
     })
 
 
@@ -80,82 +84,132 @@ def update_trip(trip_id):
     if not trip:
         return jsonify({"error": "Trip not found or update failed"}), 404
 
-    # Update or add foods
-    for food_data in data.get("foods", []):
-        food_id = food_data.get("id")
-        if food_id and food_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
-            data_manager.delete_food(food_id)
-        elif food_id:
-            data_manager.update_food(
-                food_id=food_id,
-                food_type=food_data.get("type"),
-                lat_long=food_data.get("lat_long"),
-                address=food_data.get("address"),
-                comment=food_data.get("comment"),
-                external_url=food_data.get("external_url"),
+    # Update or add eat&drink
+    for eat_drink_data in data.get("eat_drink", []):
+        eat_drink_id = eat_drink_data.get("id")
+        if eat_drink_id and eat_drink_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
+            data_manager.delete_eat_drink(eat_drink_id)
+        elif eat_drink_id:
+            data_manager.update_eat_drink(
+                eat_drink_id=eat_drink_id,
+                name=eat_drink_data.get("name"),
+                coordinates=eat_drink_data.get("coordinates"),
+                address=eat_drink_data.get("address"),
+                comments=eat_drink_data.get("comments"),
+                external_url=eat_drink_data.get("external_url"),
             )
         else:
-            data_manager.add_food(
+            data_manager.add_eat_drink(
                 trip_id=trip_id,
-                food_type=food_data.get("type"),
-                lat_long=food_data.get("lat_long"),
-                address=food_data.get("address"),
-                comment=food_data.get("comment"),
-                external_url=food_data.get("external_url"),
+                name=eat_drink_data.get("name"),
+                coordinates=eat_drink_data.get("coordinates"),
+                address=eat_drink_data.get("address"),
+                comments=eat_drink_data.get("comments"),
+                external_url=eat_drink_data.get("external_url"),
             )
 
-    # Update or add accommodations
-    for acc_data in data.get("accommodations", []):
-        acc_id = acc_data.get("id")
-        if acc_id and acc_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
-            data_manager.delete_accommodation(acc_id)
-        elif acc_id:
-            data_manager.update_accommodation(
-                accommodation_id=acc_id,
-                acc_type=acc_data.get("type"),
-                lat_long=acc_data.get("lat_long"),
-                address=acc_data.get("address"),
-                price=acc_data.get("price"),
-                status=acc_data.get("status"),
-                comment=acc_data.get("comment"),
-                external_url=acc_data.get("external_url"),
+    # Update or add stays
+    for stay_data in data.get("stays", []):
+        stay_id = stay_data.get("id")
+        if stay_id and stay_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
+            data_manager.delete_stay(stay_id)
+        elif stay_id:
+            data_manager.update_stay(
+                stay_id=stay_id,
+                name=stay_data.get("name"),
+                coordinates=stay_data.get("coordinates"),
+                address=stay_data.get("address"),
+                price=stay_data.get("price"),
+                status=stay_data.get("status"),
+                comments=stay_data.get("comments"),
+                external_url=stay_data.get("external_url"),
             )
         else:
-            data_manager.add_accommodation(
+            data_manager.add_stay(
                 trip_id=trip_id,
-                acc_type=acc_data.get("type"),
-                lat_long=acc_data.get("lat_long"),
-                address=acc_data.get("address"),
-                price=acc_data.get("price"),
-                status=acc_data.get("status"),
-                comment=acc_data.get("comment"),
-                external_url=acc_data.get("external_url"),
+                name=stay_data.get("name"),
+                coordinates=stay_data.get("coordinates"),
+                address=stay_data.get("address"),
+                price=stay_data.get("price"),
+                status=stay_data.get("status"),
+                comments=stay_data.get("comments"),
+                external_url=stay_data.get("external_url"),
             )
 
-    # Update or add points of interest
-    for poi_data in data.get("points_of_interest", []):
-        poi_id = poi_data.get("id")
-        if poi_id and poi_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react changes delete state to true.
-            data_manager.delete_point_of_interest(poi_id)
-        if poi_id:
-            data_manager.update_point_of_interest(
-                point_of_interest_id=poi_id,
-                new_name=poi_data.get("name"),
-                lat_long=poi_data.get("lat_long"),
-                address=poi_data.get("address"),
-                price=poi_data.get("price"),
-                comment=poi_data.get("comment"),
-                external_url=poi_data.get("external_url"),
+    # Update or add explore
+    for explore_data in data.get("explore", []):
+        explore_id = explore_data.get("id")
+        if explore_id and explore_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react changes delete state to true.
+            data_manager.delete_explore(explore_id)
+        if explore_id:
+            data_manager.update_explore(
+                explore_id=explore_id,
+                name=explore_data.get("name"),
+                coordinates=explore_data.get("coordinates"),
+                address=explore_data.get("address"),
+                price=explore_data.get("price"),
+                comments=explore_data.get("comments"),
+                external_url=explore_data.get("external_url"),
             )
         else:
-            data_manager.add_point_of_interest(
+            data_manager.add_explore(
                 trip_id=trip_id,
-                name=poi_data.get("name"),
-                lat_long=poi_data.get("lat_long"),
-                address=poi_data.get("address"),
-                price=poi_data.get("price"),
-                comment=poi_data.get("comment"),
-                external_url=poi_data.get("external_url"),
+                name=explore_data.get("name"),
+                coordinates=explore_data.get("coordinates"),
+                address=explore_data.get("address"),
+                price=explore_data.get("price"),
+                comments=explore_data.get("comments"),
+                external_url=explore_data.get("external_url"),
+            )
+
+    # Update or add essentials
+    for essentials_data in data.get("essentials", []):
+        essentials_id = essentials_data.get("id")
+        if essentials_id and essentials_data.get(
+                "deleted"):  # When the delete button for the row is clicked on the frontend, react changes delete state to true.
+            data_manager.delete_essentials(essentials_id)
+        if essentials_id:
+            data_manager.update_essentials(
+                essentials_id=essentials_id,
+                name=essentials_data.get("name"),
+                coordinates=essentials_data.get("coordinates"),
+                address=essentials_data.get("address"),
+                comments=essentials_data.get("comments"),
+                external_url=essentials_data.get("external_url"),
+            )
+        else:
+            data_manager.add_essentials(
+                trip_id=trip_id,
+                name=essentials_data.get("name"),
+                coordinates=essentials_data.get("coordinates"),
+                address=essentials_data.get("address"),
+                comments=essentials_data.get("comments"),
+                external_url=essentials_data.get("external_url"),
+            )
+
+    # Update or add getting_around
+    for getting_around_data in data.get("getting_around", []):
+        getting_around_id = getting_around_data.get("id")
+        if getting_around_id and getting_around_data.get(
+                "deleted"):  # When the delete button for the row is clicked on the frontend, react changes delete state to true.
+            data_manager.delete_getting_around(getting_around_id)
+        if getting_around_id:
+            data_manager.update_getting_around(
+                getting_around_id=getting_around_id,
+                name=getting_around_data.get("name"),
+                coordinates=getting_around_data.get("coordinates"),
+                address=getting_around_data.get("address"),
+                comments=getting_around_data.get("comments"),
+                external_url=getting_around_data.get("external_url"),
+            )
+        else:
+            data_manager.add_getting_around(
+                trip_id=trip_id,
+                name=getting_around_data.get("name"),
+                coordinates=getting_around_data.get("coordinates"),
+                address=getting_around_data.get("address"),
+                comments=getting_around_data.get("comments"),
+                external_url=getting_around_data.get("external_url"),
             )
 
     return jsonify({"message": "Trip and related data updated successfully"})
@@ -175,23 +229,34 @@ def update_trip(trip_id):
 # """" Renders the page with the AI suggestions# """"
 
 
-@app.route('/trips/<int:trip_id>/points-of-interest', methods=['GET'])
-def get_points_of_interest_of_trip(trip_id):
-    pois = data_manager.get_points_of_interest_by_trip(trip_id)
-    return jsonify([poi.to_dict() for poi in pois])
+@app.route('/trips/<int:trip_id>/explore', methods=['GET'])
+def get_explore_of_trip(trip_id):
+    explore = data_manager.get_explore_by_trip(trip_id)
+    return jsonify([expl.to_dict() for expl in explore])
 
 
-@app.route('/trips/<int:trip_id>/accommodations', methods=['GET'])
-def get_accommodations_of_trip(trip_id):
-    accommodations = data_manager.get_accommodations_by_trip(trip_id)
-    return jsonify([accommodation.to_dict() for accommodation in accommodations])
+@app.route('/trips/<int:trip_id>/stays', methods=['GET'])
+def get_stays_of_trip(trip_id):
+    stays = data_manager.get_stays_by_trip(trip_id)
+    return jsonify([stay.to_dict() for stay in stays])
 
 
-@app.route('/trips/<int:trip_id>/foods', methods=['GET'])
-def get_foods_of_trip(trip_id):
-    foods = data_manager.get_foods_by_trip(trip_id)
-    return jsonify([food.to_dict() for food in foods])
+@app.route('/trips/<int:trip_id>/eat-drink', methods=['GET'])
+def get_eat_drink_of_trip(trip_id):
+    eat_drink = data_manager.get_eat_drink_by_trip(trip_id)
+    return jsonify([eat.to_dict() for eat in eat_drink])
 
+
+@app.route('/trips/<int:trip_id>/essentials', methods=['GET'])
+def get_essentials_of_trip(trip_id):
+    essentials = data_manager.get_essentials_by_trip(trip_id)
+    return jsonify([essential.to_dict() for essential in essentials])
+
+
+@app.route('/trips/<int:trip_id>/getting-around', methods=['GET'])
+def get_getting_around_of_trip(trip_id):
+    getting_around = data_manager.get_getting_around_by_trip(trip_id)
+    return jsonify([around.to_dict() for around in getting_around])
 
 #in the route, when I get a trip, I get everything from that trip (foods, etc)
 

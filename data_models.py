@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
@@ -25,79 +25,117 @@ class Trip(db.Model):
             "user_id": self.user_id
         }
 
-    # One trip can have many points of interest, accommodations, and food entries
-    point_of_interest = relationship("PointOfInterest", backref="trip")
-    accommodation = relationship("Accommodation", backref="trip")
-    food = relationship("Food", backref="trip")
+    # One trip can have many explores, stays, eat&drink, essentials, and getting around entries
+    explore = relationship("Explore", backref="trip")
+    stay = relationship("Stay", backref="trip")
+    eat_drink = relationship("EatDrink", backref="trip")
+    essentials = relationship("Essentials", backref="trip")
+    getting_around = relationship("GettingAround", backref="trip")
 
 
-class PointOfInterest(db.Model):
+class Explore(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
-    lat_long = Column(String)
+    coordinates = Column(String)
     address = Column(String)
     price = Column(String)
-    comment = Column(String)
+    comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
-            "lat_long": self.lat_long,
+            "coordinates": self.coordinates,
             "address": self.address,
             "price": self.price,
-            "comment": self.comment,
+            "comments": self.comments,
             "external_url": self.external_url,
             "trip_id": self.trip_id
         }
 
 
-class Accommodation(db.Model):
+class Stay(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    type = Column(String)
-    lat_long = Column(String)
+    name = Column(String)
+    coordinates = Column(String)
     address = Column(String)
     price = Column(String)
     status = Column(String)
-    comment = Column(String)
+    comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
     def to_dict(self):
         return {
             "id": self.id,
-            "type": self.type,
-            "lat_long": self.lat_long,
+            "name": self.name,
+            "coordinates": self.coordinates,
             "address": self.address,
             "price": self.price,
             "status": self.status,
-            "comment": self.comment,
+            "comments": self.comments,
             "external_url": self.external_url,
             "trip_id": self.trip_id
         }
 
 
-class Food(db.Model):
+class EatDrink(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    type = Column(String)
-    lat_long = Column(String)
+    name = Column(String)
+    coordinates = Column(String)
     address = Column(String)
-    comment = Column(String)
+    comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
     def to_dict(self):
         return {
             "id": self.id,
-            "type": self.type,
-            "lat_long": self.lat_long,
+            "name": self.name,
+            "coordinates": self.coordinates,
             "address": self.address,
-            "comment": self.comment,
+            "comments": self.comments,
             "external_url": self.external_url,
             "trip_id": self.trip_id
         }
 
 
-# class LocalTransport(db.Model)
-# class LongDistanceTransport(db.Model)
+class Essentials(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    coordinates = Column(String)
+    address = Column(String)
+    comments = Column(String)
+    external_url = Column(String)
+    trip_id = Column(Integer, ForeignKey("trip.id"))
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "coordinates": self.coordinates,
+            "address": self.address,
+            "comments": self.comments,
+            "external_url": self.external_url,
+            "trip_id": self.trip_id
+        }
+
+
+class GettingAround(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    coordinates = Column(String)
+    address = Column(String)
+    comments = Column(String)
+    external_url = Column(String)
+    trip_id = Column(Integer, ForeignKey("trip.id"))
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "coordinates": self.coordinates,
+            "address": self.address,
+            "comments": self.comments,
+            "external_url": self.external_url,
+            "trip_id": self.trip_id
+        }
 
 

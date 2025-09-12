@@ -1,6 +1,6 @@
 from sqlalchemy.exc import SQLAlchemyError
 
-from data_models import db, User, Trip, PointOfInterest, Accommodation, Food
+from data_models import db, User, Trip, Stay, Explore, EatDrink, Essentials, GettingAround
 
 
 class DataManager():
@@ -151,12 +151,12 @@ class DataManager():
             return None
 
 
-    def update_trip(self, trip_id, new_name):
+    def update_trip(self, trip_id, name):
         """Update an existing trip's name.
 
         Args:
             trip_id (int): The ID of the trip to update.
-            new_name (str): New trip name to update.
+            name (str): New trip name to update.
 
         Returns:
             Trip: The updated trip object if successful.
@@ -165,8 +165,8 @@ class DataManager():
         trip = Trip.query.get(trip_id)
         if not trip:
             return None
-        if new_name:
-            trip.name = new_name
+        if name:
+            trip.name = name
         try:
             db.session.commit()
             return trip
@@ -196,20 +196,20 @@ class DataManager():
             return False
 
 
-    # POINTS OF INTEREST FUNCTIONS
+    # EXPLORE FUNCTIONS
     # Shouldn't they be added/updated all at once everytime instead of one at a time?
     # Should there be a delete option or just update?
 
-    def get_points_of_interest(self):
-        """Retrieve all points of interest from the database.
+    def get_explore(self):
+        """Retrieve all places to explore from the database.
 
         Returns:
-            list[Point of Interest]: A list of Point of Interest objects.
+            list[Explore]: A list of Explore objects.
             None: If an error occurred.
         """
         try:
-            points_of_interest = PointOfInterest.query.all()
-            return points_of_interest
+            explore = Explore.query.all()
+            return explore
         except SQLAlchemyError as e:
             print("A database error occurred:", str(e))
             return None
@@ -218,16 +218,16 @@ class DataManager():
             return None
 
 
-    def get_points_of_interest_by_trip(self, trip_id):
-        """Retrieve all points of interest from a specific trip in the database.
+    def get_explore_by_trip(self, trip_id):
+        """Retrieve all places to explore from a specific trip in the database.
 
         Returns:
-            list[Points of Interest]: A list of point_of_interest objects.
+            list[Explore]: A list of explore objects.
             None: If an error occurred.
         """
         try:
-            points_of_interest = PointOfInterest.query.filter_by(trip_id=trip_id).all()
-            return points_of_interest
+            explore = Explore.query.filter_by(trip_id=trip_id).all()
+            return explore
         except SQLAlchemyError as e:
             print("A database error occurred:", str(e))
             return None
@@ -236,110 +236,110 @@ class DataManager():
             return None
 
 
-    def add_point_of_interest(self, trip_id, name, lat_long, address, price, comment, external_url):
-        """Create and save a new point of interest to the database.
+    def add_explore(self, trip_id, name, coordinates, address, price, comments, external_url):
+        """Create and save a new place to explore to the database.
 
         Args:
-            name (str): The name of the point of interest.
-            lat_long (str): The latitude and longitude of the point of interest.
-            address (str): The address of the point of interest.
-            price (str): The price of the point of interest (e.g. entry fee).
-            comment (str): Any comments pertaining that point of interest.
+            name (str): The name of the place to explore.
+            coordinates (str): The latitude and longitude of the place to explore.
+            address (str): The address of the place to explore.
+            price (str): The price of the place to explore (e.g. entry fee).
+            comments (str): Any comments pertaining that place to explore.
             external_url (str): Link to related website (e.g. buy tickets).
 
         Returns:
-            Point of interest: The newly created point of interest object if successful.
+            Explore: The newly created place to explore object if successful.
             None: If an error occurred.
         """
-        new_point_of_interest = PointOfInterest(
+        new_explore = Explore(
             trip_id=trip_id,
             name=name,
-            lat_long=lat_long,
+            coordinates=coordinates,
             address=address,
             price=price,
-            comment=comment,
+            comments=comments,
             external_url=external_url)
         try:
-            db.session.add(new_point_of_interest)
+            db.session.add(new_explore)
             db.session.commit()
-            return new_point_of_interest
+            return new_explore
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while creating point of interest: ", str(e))
+            print("An error has occurred while creating place to explore: ", str(e))
 
 
-    def update_point_of_interest(self, point_of_interest_id, new_name, lat_long, address, price, comment, external_url):
-        """Update an existing point of interest's details.
+    def update_explore(self, explore_id, name, coordinates, address, price, comments, external_url):
+        """Update an existing place to explore details.
 
         Args:
-            point_of_interest_id (int): The ID of the point of interest to update.
-            new_name (str): New point of interest name to update.
-            lat_long (str): New latitude and longitude to update.
-            address (str): New point of interest address to update.
-            price (str): New point of interest price to update.
-            comment (str): New comment to update.
+            explore_id (int): The ID of the explore place to update.
+            name (str): New explore place name to update.
+            coordinates (str): New latitude and longitude to update.
+            address (str): New explore address to update.
+            price (str): New explore price to update.
+            comments (str): New comment to update.
             external_url (str): New external link to update.
 
         Returns:
-            Point of interest: The updated point of interest object if successful.
-            None: If the point of interest is not found or an error occurred.
+            Explore: The updated place to explore object if successful.
+            None: If the explore place is not found or an error occurred.
         """
-        point_of_interest = PointOfInterest.query.get(point_of_interest_id)
-        if not point_of_interest:
+        explore = Explore.query.get(explore_id)
+        if not explore:
             return None
-        if new_name:
-            point_of_interest.name = new_name
-        if lat_long:
-            point_of_interest.lat_long = lat_long
+        if name:
+            explore.name = name
+        if coordinates:
+            explore.coordinates = coordinates
         if address:
-            point_of_interest.address = address
+            explore.address = address
         if price:
-            point_of_interest.price = price
-        if comment:
-            point_of_interest.comment = comment
+            explore.price = price
+        if comments:
+            explore.comments = comments
         if external_url:
-            point_of_interest.external_url = external_url
+            explore.external_url = external_url
         try:
             db.session.commit()
-            return point_of_interest
+            return explore
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while updating point of interest: ", str(e))
+            print("An error has occurred while updating place to explore: ", str(e))
             return None
 
 
-    def delete_point_of_interest(self, point_of_interest_id):
+    def delete_explore(self, explore_id):
         """
-        Deletes a point of interest from the database by its ID.
+        Deletes a place to explore from the database by its ID.
 
         Args:
-            point_of_interest_id (int): The unique identifier of the point of interest to delete.
+            explore_id (int): The unique identifier of the explore place to delete.
 
         Returns:
-            bool: True if a point of interest was successfully deleted, False otherwise.
+            bool: True if an explore was successfully deleted, False otherwise.
         """
         try:
-            point_of_interest_deleted = PointOfInterest.query.filter(PointOfInterest.id == point_of_interest_id).delete()
+            explore_deleted = Explore.query.filter(Explore.id == explore_id).delete()
             db.session.commit()
-            return point_of_interest_deleted > 0 # returns True if a movie was deleted
+            return explore_deleted > 0 # returns True if an item was deleted
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while deleting point of interest: ", str(e))
+            print("An error has occurred while deleting place to explore: ", str(e))
             return False
 
 
-    # ACCOMMODATION FUNCTIONS
+    # STAY FUNCTIONS
 
-    def get_accommodations(self):
-        """Retrieve all accommodations from the database.
+    def get_stays(self):
+        """Retrieve all stays from the database.
 
         Returns:
-            list[Accommodation]: A list of Accommodation objects.
+            list[Stay]: A list of Stay objects.
             None: If an error occurred.
         """
         try:
-            accommodations = Accommodation.query.all()
-            return accommodations
+            stays = Stay.query.all()
+            return stays
         except SQLAlchemyError as e:
             print("A database error occurred:", str(e))
             return None
@@ -348,16 +348,16 @@ class DataManager():
             return None
 
 
-    def get_accommodations_by_trip(self, trip_id):
-        """Retrieve all accommodations from a specific trip in the database.
+    def get_stays_by_trip(self, trip_id):
+        """Retrieve all stays from a specific trip in the database.
 
         Returns:
-            list[Accommodation]: A list of accommodation objects.
+            list[Stay]: A list of stay objects.
             None: If an error occurred.
         """
         try:
-            accommodations = Accommodation.query.filter_by(trip_id=trip_id).all()
-            return accommodations
+            stays = Stay.query.filter_by(trip_id=trip_id).all()
+            return stays
         except SQLAlchemyError as e:
             print("A database error occurred:", str(e))
             return None
@@ -366,115 +366,115 @@ class DataManager():
             return None
 
 
-    def add_accommodation(self, trip_id, acc_type, lat_long, address, price, status, comment, external_url):
-        """Create and save new accommodation to the database.
+    def add_stay(self, trip_id, name, coordinates, address, price, status, comments, external_url):
+        """Create and save new stay to the database.
 
         Args:
-            acc_type (str): The type of accommodation (e.g. hotel, camping).
-            lat_long (str): The latitude and longitude of the accommodation.
-            address (str): The address of the accommodation.
-            price (str): The price of the accommodation.
-            status (str): The status of the accommodation (e.g. paid, reserved).
-            comment (str): Any comments pertaining that accommodation.
+            name (str): The name of the stay (e.g. hotel..., camping...).
+            coordinates (str): The latitude and longitude of the stay.
+            address (str): The address of the stay.
+            price (str): The price of the stay.
+            status (str): The status of the stay (e.g. paid, reserved).
+            comments (str): Any comments pertaining that stay.
             external_url (str): Link to related website (e.g. reservation confirmation).
 
         Returns:
-            Point of interest: The newly created point of interest object if successful.
+            Stay: The newly created stay object if successful.
             None: If an error occurred.
         """
-        new_accommodation = Accommodation(
+        new_stay = Stay(
             trip_id=trip_id,
-            type=acc_type,
-            lat_long=lat_long,
+            name=name,
+            coordinates=coordinates,
             address=address,
             price=price,
             status=status,
-            comment=comment,
+            comments=comments,
             external_url=external_url)
         try:
-            db.session.add(new_accommodation)
+            db.session.add(new_stay)
             db.session.commit()
-            return new_accommodation
+            return new_stay
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while creating accommodation: ", str(e))
+            print("An error has occurred while creating stay: ", str(e))
 
 
-    def update_accommodation(self, accommodation_id, acc_type, lat_long, address, price, status, comment, external_url):
-        """Update an existing accommodation's details.
+    def update_stay(self, stay_id, name, coordinates, address, price, status, comments, external_url):
+        """Update an existing stay's details.
 
         Args:
-            accommodation_id (int): The ID of the accommodation to update.
-            acc_type (str): New accommodation type to update.
-            lat_long (str): New latitude and longitude to update.
+            stay_id (int): The ID of the stay to update.
+            name (str): New stay type to update.
+            coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
             price (str): New price to update.
             status (str): New status to update
-            comment (str): New comment to update.
+            comments (str): New comment to update.
             external_url (str): New external link to update.
 
         Returns:
-            Accommodation: The updated accommodation object if successful.
-            None: If the accommodation is not found or an error occurred.
+            Stay: The updated stay object if successful.
+            None: If the stay is not found or an error occurred.
         """
-        accommodation = Accommodation.query.get(accommodation_id)
-        if not accommodation:
+        stay = Stay.query.get(stay_id)
+        if not stay:
             return None
-        if acc_type:
-            accommodation.type = acc_type
-        if lat_long:
-            accommodation.lat_long = lat_long
+        if name:
+            stay.name = name
+        if coordinates:
+            stay.coordinates = coordinates
         if address:
-            accommodation.address = address
+            stay.address = address
         if price:
-            accommodation.price = price
+            stay.price = price
         if status:
-            accommodation.status = status
-        if comment:
-            accommodation.comment = comment
+            stay.status = status
+        if comments:
+            stay.comments = comments
         if external_url:
-            accommodation.external_url = external_url
+            stay.external_url = external_url
         try:
             db.session.commit()
-            return accommodation
+            return stay
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while updating accommodation: ", str(e))
+            print("An error has occurred while updating stay: ", str(e))
             return None
 
 
-    def delete_accommodation(self, accommodation_id):
+    def delete_stay(self, stay_id):
         """
-        Deletes accommodation from the database by its ID.
+        Deletes stay from the database by its ID.
 
         Args:
-            accommodation_id (int): The unique identifier of the accommodation to delete.
+            stay_id (int): The unique identifier of the stay to delete.
 
         Returns:
-            bool: True if an accommodation object was successfully deleted, False otherwise.
+            bool: True if a stay object was successfully deleted, False otherwise.
         """
         try:
-            accommodation_deleted = Accommodation.query.filter(Accommodation.id == accommodation_id).delete()
+            stay_deleted = Stay.query.filter(Stay.id == stay_id).delete()
             db.session.commit()
-            return accommodation_deleted > 0 # returns True if a movie was deleted
+            return stay_deleted > 0 # returns True if an item was deleted
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while deleting accommodation: ", str(e))
+            print("An error has occurred while deleting stay: ", str(e))
             return False
 
 
-    # FOOD FUNCTIONS
+    # EAT&DRINK FUNCTIONS
 
-    def get_foods(self):
-        """Retrieve all food from the database.
+    def get_eat_drink(self):
+        """Retrieve all eat&drink objects from the database.
 
         Returns:
-            list[Food]: A list of food objects.
+            list[EatDrink]: A list of eat&drink objects.
             None: If an error occurred.
         """
         try:
-            foods = Food.query.all()
-            return foods
+            eat_drink = EatDrink.query.all()
+            return eat_drink
         except SQLAlchemyError as e:
             print("A database error occurred:", str(e))
             return None
@@ -483,16 +483,16 @@ class DataManager():
             return None
 
 
-    def get_foods_by_trip(self, trip_id):
-        """Retrieve all food from a specific trip in the database.
+    def get_eat_drink_by_trip(self, trip_id):
+        """Retrieve all eat&drink from a specific trip in the database.
 
         Returns:
-            list[Food]: A list of food objects.
+            list[EatDrink]: A list of eat&drink objects.
             None: If an error occurred.
         """
         try:
-            foods = Food.query.filter_by(trip_id=trip_id).all()
-            return foods
+            eat_drink = EatDrink.query.filter_by(trip_id=trip_id).all()
+            return eat_drink
         except SQLAlchemyError as e:
             print("A database error occurred:", str(e))
             return None
@@ -501,89 +501,341 @@ class DataManager():
             return None
 
 
-    def add_food(self, trip_id, food_type, lat_long, address, comment, external_url):
-        """Create and save new food to the database.
+    def add_eat_drink(self, trip_id, name, coordinates, address, comments, external_url):
+        """Create and save new eat&drink to the database.
 
         Args:
-            food_type (str): The type of food place (e.g. restaurant, supermarket).
-            lat_long (str): The latitude and longitude of the food place.
-            address (str): The address of the food place.
-            comment (str): Any comments pertaining that food place.
+            name (str): The name of eat&drink place.
+            coordinates(str): The latitude and longitude of the eat&drink place.
+            address (str): The address of the eat&drink place.
+            comments (str): Any comments pertaining that place.
             external_url (str): Link to related website (e.g. restaurant's menu).
 
         Returns:
-            Food: The newly created food object if successful.
+            EatDrink: The newly created eat&drink object if successful.
             None: If an error occurred.
         """
-        new_food = Food(
+        new_eat_drink = EatDrink(
             trip_id=trip_id,
-            type=food_type,
-            lat_long=lat_long,
+            name=name,
+            coordinates=coordinates,
             address=address,
-            comment=comment,
+            comments=comments,
             external_url=external_url)
         try:
-            db.session.add(new_food)
+            db.session.add(new_eat_drink)
             db.session.commit()
-            return new_food
+            return new_eat_drink
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while creating food: ", str(e))
+            print("An error has occurred while creating eat&drink place: ", str(e))
 
 
-    def update_food(self, food_id, food_type, lat_long, address, comment, external_url):
-        """Update an existing food's details.
+    def update_eat_drink(self, eat_drink_id, name, coordinates, address, comments, external_url):
+        """Update an existing eat&drink's details.
 
         Args:
-            food_id (int): The ID of the food to update.
-            food_type (str): New food type to update.
-            lat_long (str): New latitude and longitude to update.
+            eat_drink_id (int): The ID of the eat&drink place to update.
+            name (str): New eat&drink name to update.
+            coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
-            comment (str): New comment to update.
+            comments (str): New comment to update.
             external_url (str): New external link to update.
 
         Returns:
-            Food: The updated food object if successful.
-            None: If the food object is not found or an error occurred.
+            EatDrink: The updated eat&drink object if successful.
+            None: If the eat&drink object is not found or an error occurred.
         """
-        food = Food.query.get(food_id)
-        if not food:
+        eat_drink = EatDrink.query.get(eat_drink_id)
+        if not eat_drink:
             return None
-        if food_type:
-            food.type = food_type
-        if lat_long:
-            food.lat_long = lat_long
+        if name:
+            eat_drink.name = name
+        if coordinates:
+            eat_drink.coordinates = coordinates
         if address:
-            food.address = address
-        if comment:
-            food.comment = comment
+            eat_drink.address = address
+        if comments:
+            eat_drink.comment = comments
         if external_url:
-            food.external_url = external_url
+            eat_drink.external_url = external_url
         try:
             db.session.commit()
-            return food
+            return eat_drink
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while updating food: ", str(e))
+            print("An error has occurred while updating eat&drink place: ", str(e))
             return None
 
 
-    def delete_food(self, food_id):
+    def delete_eat_drink(self, eat_drink_id):
         """
-        Deletes food from the database by its ID.
+        Deletes eat&drink from the database by its ID.
 
         Args:
-            food_id (int): The unique identifier of the food to delete.
+            eat_drink_id (int): The unique identifier of the eat&drink to delete.
 
         Returns:
-            bool: True if a food object was successfully deleted, False otherwise.
+            bool: True if an eat&drink object was successfully deleted, False otherwise.
         """
         try:
-            food_deleted = Food.query.filter(
-                Food.id == food_id).delete()
+            eat_drink_deleted = EatDrink.query.filter(
+                EatDrink.id == eat_drink_id).delete()
             db.session.commit()
-            return food_deleted > 0  # returns True if a movie was deleted
+            return eat_drink_deleted > 0  # returns True if an item was deleted
         except Exception as e:
             db.session.rollback()
-            print("An error has occurred while deleting food: ", str(e))
+            print("An error has occurred while deleting eat&drink: ", str(e))
+            return False
+
+
+# ESSENTIALS FUNCTIONS
+
+    def get_essentials(self):
+        """Retrieve all essentials objects from the database.
+
+        Returns:
+            list[Essentials]: A list of essentials objects.
+            None: If an error occurred.
+        """
+        try:
+            essentials = Essentials.query.all()
+            return essentials
+        except SQLAlchemyError as e:
+            print("A database error occurred:", str(e))
+            return None
+        except Exception as e:
+            print("An unexpected error occurred:", str(e))
+            return None
+
+
+    def get_essentials_by_trip(self, trip_id):
+        """Retrieve all essentials from a specific trip in the database.
+
+        Returns:
+            list[Essentials]: A list of essentials objects.
+            None: If an error occurred.
+        """
+        try:
+            essentials = Essentials.query.filter_by(trip_id=trip_id).all()
+            return essentials
+        except SQLAlchemyError as e:
+            print("A database error occurred:", str(e))
+            return None
+        except Exception as e:
+            print("An unexpected error occurred:", str(e))
+            return None
+
+
+    def add_essentials(self, trip_id, name, coordinates, address, comments, external_url):
+        """Create and save new essentials to the database.
+
+        Args:
+            name (str): The name of essentials place.
+            coordinates(str): The latitude and longitude of the essentials place.
+            address (str): The address of the essentials place.
+            comments (str): Any comments pertaining that place.
+            external_url (str): Link to related website.
+
+        Returns:
+            Essentials: The newly created eat&drink object if successful.
+            None: If an error occurred.
+        """
+        new_essentials = Essentials(
+            trip_id=trip_id,
+            name=name,
+            coordinates=coordinates,
+            address=address,
+            comments=comments,
+            external_url=external_url)
+        try:
+            db.session.add(new_essentials)
+            db.session.commit()
+            return new_essentials
+        except Exception as e:
+            db.session.rollback()
+            print("An error has occurred while creating essentials place: ", str(e))
+
+
+    def update_essentials(self, essentials_id, name, coordinates, address, comments, external_url):
+        """Update an existing essentials' details.
+
+        Args:
+            essentials_id (int): The ID of the essentials place to update.
+            name (str): New essentials name to update.
+            coordinates (str): New latitude and longitude to update.
+            address (str): New address to update.
+            comments (str): New comment to update.
+            external_url (str): New external link to update.
+
+        Returns:
+            Essentials: The updated essentials object if successful.
+            None: If the essentials object is not found or an error occurred.
+        """
+        essentials = Essentials.query.get(essentials_id)
+        if not essentials:
+            return None
+        if name:
+            essentials.name = name
+        if coordinates:
+            essentials.coordinates = coordinates
+        if address:
+            essentials.address = address
+        if comments:
+            essentials.comment = comments
+        if external_url:
+            essentials.external_url = external_url
+        try:
+            db.session.commit()
+            return essentials
+        except Exception as e:
+            db.session.rollback()
+            print("An error has occurred while updating essentials place: ", str(e))
+            return None
+
+
+    def delete_essentials(self, essentials_id):
+        """
+        Deletes essentials from the database by its ID.
+
+        Args:
+            essentials_id (int): The unique identifier of the essentials to delete.
+
+        Returns:
+            bool: True if an essentials object was successfully deleted, False otherwise.
+        """
+        try:
+            essentials_deleted = Essentials.query.filter(
+                Essentials.id == essentials_id).delete()
+            db.session.commit()
+            return essentials_deleted > 0  # returns True if an item was deleted
+        except Exception as e:
+            db.session.rollback()
+            print("An error has occurred while deleting essentials: ", str(e))
+            return False
+
+
+# GETTING AROUND FUNCTIONS
+
+    def get_getting_around(self):
+        """Retrieve all getting around objects from the database.
+
+        Returns:
+            list[GettingAround]: A list of getting around objects.
+            None: If an error occurred.
+        """
+        try:
+            getting_around = GettingAround.query.all()
+            return getting_around
+        except SQLAlchemyError as e:
+            print("A database error occurred:", str(e))
+            return None
+        except Exception as e:
+            print("An unexpected error occurred:", str(e))
+            return None
+
+
+    def get_getting_around_by_trip(self, trip_id):
+        """Retrieve all getting around objects from a specific trip in the database.
+
+        Returns:
+            list[GettingAround]: A list of essentials objects.
+            None: If an error occurred.
+        """
+        try:
+            getting_around = GettingAround.query.filter_by(trip_id=trip_id).all()
+            return getting_around
+        except SQLAlchemyError as e:
+            print("A database error occurred:", str(e))
+            return None
+        except Exception as e:
+            print("An unexpected error occurred:", str(e))
+            return None
+
+
+    def add_getting_around(self, trip_id, name, coordinates, address, comments, external_url):
+        """Create and save new getting_around to the database.
+
+        Args:
+            name (str): The name of getting_around place.
+            coordinates(str): The latitude and longitude of the getting_around place.
+            address (str): The address of the getting_around place.
+            comments (str): Any comments pertaining that place.
+            external_url (str): Link to related website.
+
+        Returns:
+            GettingAround: The newly created getting_around object if successful.
+            None: If an error occurred.
+        """
+        new_getting_around = GettingAround(
+            trip_id=trip_id,
+            name=name,
+            coordinates=coordinates,
+            address=address,
+            comments=comments,
+            external_url=external_url)
+        try:
+            db.session.add(new_getting_around)
+            db.session.commit()
+            return new_getting_around
+        except Exception as e:
+            db.session.rollback()
+            print("An error has occurred while creating getting around place: ", str(e))
+
+
+    def update_getting_around(self, getting_around_id, name, coordinates, address, comments, external_url):
+        """Update an existing getting_around details.
+
+        Args:
+            getting_around_id (int): The ID of the place to update.
+            name (str): New name to update.
+            coordinates (str): New latitude and longitude to update.
+            address (str): New address to update.
+            comments (str): New comment to update.
+            external_url (str): New external link to update.
+
+        Returns:
+            GettingAround: The updated getting_around object if successful.
+            None: If the getting_around object is not found or an error occurred.
+        """
+        getting_around = GettingAround.query.get(getting_around_id)
+        if not getting_around:
+            return None
+        if name:
+            getting_around.name = name
+        if coordinates:
+            getting_around.coordinates = coordinates
+        if address:
+            getting_around.address = address
+        if comments:
+            getting_around.comment = comments
+        if external_url:
+            getting_around.external_url = external_url
+        try:
+            db.session.commit()
+            return getting_around
+        except Exception as e:
+            db.session.rollback()
+            print("An error has occurred while updating getting around place: ", str(e))
+            return None
+
+
+    def delete_getting_around(self, getting_around_id):
+        """
+        Deletes getting_around from the database by its ID.
+
+        Args:
+            getting_around_id (int): The unique identifier of the getting_around to delete.
+
+        Returns:
+            bool: True if a getting_around object was successfully deleted, False otherwise.
+        """
+        try:
+            getting_around_deleted = GettingAround.query.filter(
+                GettingAround.id == getting_around_id).delete()
+            db.session.commit()
+            return getting_around_deleted > 0  # returns True if an item was deleted
+        except Exception as e:
+            db.session.rollback()
+            print("An error has occurred while deleting getting around: ", str(e))
             return False
