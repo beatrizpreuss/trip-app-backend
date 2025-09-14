@@ -110,7 +110,7 @@ def update_trip(trip_id):
 
     # Update or add stays
     for stay_data in data.get("stays", []):
-        stay_id = stay_data.get("id")
+        stay_id = stay_data.get("id", None)
         if stay_id and stay_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
             data_manager.delete_stay(stay_id)
         elif stay_id:
@@ -141,7 +141,7 @@ def update_trip(trip_id):
         explore_id = explore_data.get("id")
         if explore_id and explore_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react changes delete state to true.
             data_manager.delete_explore(explore_id)
-        if explore_id:
+        elif explore_id:
             data_manager.update_explore(
                 explore_id=explore_id,
                 name=explore_data.get("name"),
@@ -168,7 +168,7 @@ def update_trip(trip_id):
         if essentials_id and essentials_data.get(
                 "deleted"):  # When the delete button for the row is clicked on the frontend, react changes delete state to true.
             data_manager.delete_essentials(essentials_id)
-        if essentials_id:
+        elif essentials_id:
             data_manager.update_essentials(
                 essentials_id=essentials_id,
                 name=essentials_data.get("name"),
@@ -193,7 +193,7 @@ def update_trip(trip_id):
         if getting_around_id and getting_around_data.get(
                 "deleted"):  # When the delete button for the row is clicked on the frontend, react changes delete state to true.
             data_manager.delete_getting_around(getting_around_id)
-        if getting_around_id:
+        elif getting_around_id:
             data_manager.update_getting_around(
                 getting_around_id=getting_around_id,
                 name=getting_around_data.get("name"),
@@ -212,8 +212,20 @@ def update_trip(trip_id):
                 external_url=getting_around_data.get("external_url"),
             )
 
-    return jsonify({"message": "Trip and related data updated successfully"})
+    explore = data_manager.get_explore_by_trip(trip_id)
+    stays = data_manager.get_stays_by_trip(trip_id)
+    eat_drink = data_manager.get_eat_drink_by_trip(trip_id)
+    essentials = data_manager.get_essentials_by_trip(trip_id)
+    getting_around = data_manager.get_getting_around_by_trip(trip_id)
 
+    return jsonify({
+        "trip": trip.to_dict(),
+        "explore": [expl.to_dict() for expl in explore],
+        "stays": [stay.to_dict() for stay in stays],
+        "eat_drink": [eat.to_dict() for eat in eat_drink],
+        "essentials": [essential.to_dict() for essential in essentials],
+        "getting_around": [around.to_dict() for around in getting_around]
+        })
 
 @app.route('/trips/<int:trip_id>/map', methods=['GET'])
 # """" Displays the map of the trip with the specified ID, along with all
