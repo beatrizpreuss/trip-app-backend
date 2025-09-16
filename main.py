@@ -87,7 +87,7 @@ def update_trip(trip_id):
     # Update or add eat&drink
     for eat_drink_data in data.get("eat_drink", []):
         eat_drink_id = eat_drink_data.get("id")
-        if eat_drink_id and eat_drink_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
+        if eat_drink_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
             data_manager.delete_eat_drink(eat_drink_id)
         elif eat_drink_id:
             data_manager.update_eat_drink(
@@ -111,7 +111,7 @@ def update_trip(trip_id):
     # Update or add stays
     for stay_data in data.get("stays", []):
         stay_id = stay_data.get("id", None)
-        if stay_id and stay_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
+        if stay_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react will change delete state to true.
             data_manager.delete_stay(stay_id)
         elif stay_id:
             data_manager.update_stay(
@@ -139,7 +139,7 @@ def update_trip(trip_id):
     # Update or add explore
     for explore_data in data.get("explore", []):
         explore_id = explore_data.get("id")
-        if explore_id and explore_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react changes delete state to true.
+        if explore_data.get("deleted"): # When the delete button for the row is clicked on the frontend, react changes delete state to true.
             data_manager.delete_explore(explore_id)
         elif explore_id:
             data_manager.update_explore(
@@ -165,8 +165,7 @@ def update_trip(trip_id):
     # Update or add essentials
     for essentials_data in data.get("essentials", []):
         essentials_id = essentials_data.get("id")
-        if essentials_id and essentials_data.get(
-                "deleted"):  # When the delete button for the row is clicked on the frontend, react changes delete state to true.
+        if essentials_data.get("deleted"):  # When the delete button for the row is clicked on the frontend, react changes delete state to true.
             data_manager.delete_essentials(essentials_id)
         elif essentials_id:
             data_manager.update_essentials(
@@ -190,8 +189,7 @@ def update_trip(trip_id):
     # Update or add getting_around
     for getting_around_data in data.get("getting_around", []):
         getting_around_id = getting_around_data.get("id")
-        if getting_around_id and getting_around_data.get(
-                "deleted"):  # When the delete button for the row is clicked on the frontend, react changes delete state to true.
+        if getting_around_data.get("deleted"):  # When the delete button for the row is clicked on the frontend, react changes delete state to true.
             data_manager.delete_getting_around(getting_around_id)
         elif getting_around_id:
             data_manager.update_getting_around(
