@@ -236,13 +236,14 @@ class DataManager():
             return None
 
 
-    def add_explore(self, trip_id, name, coordinates, address, price, comments, external_url):
+    def add_explore(self, trip_id, name, coordinates, address, day, price, comments, external_url):
         """Create and save a new place to explore to the database.
 
         Args:
             name (str): The name of the place to explore.
             coordinates (str): The latitude and longitude of the place to explore.
             address (str): The address of the place to explore.
+            day (int): The day on which this point will be used during the trip.
             price (str): The price of the place to explore (e.g. entry fee).
             comments (str): Any comments pertaining that place to explore.
             external_url (str): Link to related website (e.g. buy tickets).
@@ -256,6 +257,7 @@ class DataManager():
             name=name,
             coordinates=coordinates,
             address=address,
+            day=day,
             price=price,
             comments=comments,
             external_url=external_url)
@@ -268,7 +270,7 @@ class DataManager():
             print("An error has occurred while creating place to explore: ", str(e))
 
 
-    def update_explore(self, explore_id, name, coordinates, address, price, comments, external_url):
+    def update_explore(self, explore_id, name, coordinates, address, day, price, comments, external_url):
         """Update an existing place to explore details.
 
         Args:
@@ -276,6 +278,7 @@ class DataManager():
             name (str): New explore place name to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New explore address to update.
+            day (int): The day on which this point will be used during the trip.
             price (str): New explore price to update.
             comments (str): New comment to update.
             external_url (str): New external link to update.
@@ -293,6 +296,8 @@ class DataManager():
             explore.coordinates = coordinates
         if address:
             explore.address = address
+        if day:
+            explore.day = day
         if price:
             explore.price = price
         if comments:
@@ -366,7 +371,7 @@ class DataManager():
             return None
 
 
-    def add_stay(self, trip_id, name, coordinates, address, price, status, comments, external_url):
+    def add_stay(self, trip_id, name, coordinates, address, day, price, status, comments, external_url):
         """Create and save new stay to the database.
 
         Args:
@@ -374,6 +379,7 @@ class DataManager():
             coordinates (str): The latitude and longitude of the stay.
             address (str): The address of the stay.
             price (str): The price of the stay.
+            day (int): The day on which this point will be used during the trip.
             status (str): The status of the stay (e.g. paid, reserved).
             comments (str): Any comments pertaining that stay.
             external_url (str): Link to related website (e.g. reservation confirmation).
@@ -387,6 +393,7 @@ class DataManager():
             name=name,
             coordinates=coordinates,
             address=address,
+            day=day,
             price=price,
             status=status,
             comments=comments,
@@ -400,7 +407,7 @@ class DataManager():
             print("An error has occurred while creating stay: ", str(e))
 
 
-    def update_stay(self, stay_id, name, coordinates, address, price, status, comments, external_url):
+    def update_stay(self, stay_id, name, coordinates, address, day, price, status, comments, external_url):
         """Update an existing stay's details.
 
         Args:
@@ -408,6 +415,7 @@ class DataManager():
             name (str): New stay type to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
+            day (int): The day on which this point will be used during the trip.
             price (str): New price to update.
             status (str): New status to update
             comments (str): New comment to update.
@@ -426,6 +434,8 @@ class DataManager():
             stay.coordinates = coordinates
         if address:
             stay.address = address
+        if day:
+            stay.day = day
         if price:
             stay.price = price
         if status:
@@ -501,13 +511,14 @@ class DataManager():
             return None
 
 
-    def add_eat_drink(self, trip_id, name, coordinates, address, comments, external_url):
+    def add_eat_drink(self, trip_id, name, coordinates, address, day, comments, external_url):
         """Create and save new eat&drink to the database.
 
         Args:
             name (str): The name of eat&drink place.
             coordinates(str): The latitude and longitude of the eat&drink place.
             address (str): The address of the eat&drink place.
+            day (int): The day on which this point will be used during the trip.
             comments (str): Any comments pertaining that place.
             external_url (str): Link to related website (e.g. restaurant's menu).
 
@@ -520,6 +531,7 @@ class DataManager():
             name=name,
             coordinates=coordinates,
             address=address,
+            day=day,
             comments=comments,
             external_url=external_url)
         try:
@@ -531,7 +543,7 @@ class DataManager():
             print("An error has occurred while creating eat&drink place: ", str(e))
 
 
-    def update_eat_drink(self, eat_drink_id, name, coordinates, address, comments, external_url):
+    def update_eat_drink(self, eat_drink_id, name, coordinates, address, day, comments, external_url):
         """Update an existing eat&drink's details.
 
         Args:
@@ -539,6 +551,7 @@ class DataManager():
             name (str): New eat&drink name to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
+            day (int): The day on which this point will be used during the trip.
             comments (str): New comment to update.
             external_url (str): New external link to update.
 
@@ -555,6 +568,8 @@ class DataManager():
             eat_drink.coordinates = coordinates
         if address:
             eat_drink.address = address
+        if day:
+            eat_drink.day = day
         if comments:
             eat_drink.comment = comments
         if external_url:
@@ -627,13 +642,14 @@ class DataManager():
             return None
 
 
-    def add_essentials(self, trip_id, name, coordinates, address, comments, external_url):
+    def add_essentials(self, trip_id, name, coordinates, address, day, comments, external_url):
         """Create and save new essentials to the database.
 
         Args:
             name (str): The name of essentials place.
             coordinates(str): The latitude and longitude of the essentials place.
             address (str): The address of the essentials place.
+            day (int): The day on which this point will be used during the trip.
             comments (str): Any comments pertaining that place.
             external_url (str): Link to related website.
 
@@ -646,6 +662,7 @@ class DataManager():
             name=name,
             coordinates=coordinates,
             address=address,
+            day=day,
             comments=comments,
             external_url=external_url)
         try:
@@ -657,7 +674,7 @@ class DataManager():
             print("An error has occurred while creating essentials place: ", str(e))
 
 
-    def update_essentials(self, essentials_id, name, coordinates, address, comments, external_url):
+    def update_essentials(self, essentials_id, name, coordinates, address, day, comments, external_url):
         """Update an existing essentials' details.
 
         Args:
@@ -665,6 +682,7 @@ class DataManager():
             name (str): New essentials name to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
+            day (int): The day on which this point will be used during the trip.
             comments (str): New comment to update.
             external_url (str): New external link to update.
 
@@ -681,6 +699,8 @@ class DataManager():
             essentials.coordinates = coordinates
         if address:
             essentials.address = address
+        if day:
+            essentials.day = day
         if comments:
             essentials.comment = comments
         if external_url:
@@ -753,13 +773,14 @@ class DataManager():
             return None
 
 
-    def add_getting_around(self, trip_id, name, coordinates, address, comments, external_url):
+    def add_getting_around(self, trip_id, name, coordinates, address, day, comments, external_url):
         """Create and save new getting_around to the database.
 
         Args:
             name (str): The name of getting_around place.
             coordinates(str): The latitude and longitude of the getting_around place.
             address (str): The address of the getting_around place.
+            day (int): The day on which this point will be used during the trip.
             comments (str): Any comments pertaining that place.
             external_url (str): Link to related website.
 
@@ -772,6 +793,7 @@ class DataManager():
             name=name,
             coordinates=coordinates,
             address=address,
+            day=day,
             comments=comments,
             external_url=external_url)
         try:
@@ -783,7 +805,7 @@ class DataManager():
             print("An error has occurred while creating getting around place: ", str(e))
 
 
-    def update_getting_around(self, getting_around_id, name, coordinates, address, comments, external_url):
+    def update_getting_around(self, getting_around_id, name, coordinates, address, day, comments, external_url):
         """Update an existing getting_around details.
 
         Args:
@@ -791,6 +813,7 @@ class DataManager():
             name (str): New name to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
+            day (int): The day on which this point will be used during the trip.
             comments (str): New comment to update.
             external_url (str): New external link to update.
 
@@ -807,6 +830,8 @@ class DataManager():
             getting_around.coordinates = coordinates
         if address:
             getting_around.address = address
+        if day:
+            getting_around.day = day
         if comments:
             getting_around.comment = comments
         if external_url:

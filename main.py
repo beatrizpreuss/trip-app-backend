@@ -95,6 +95,7 @@ def update_trip(trip_id):
                 name=eat_drink_data.get("name"),
                 coordinates=eat_drink_data.get("coordinates"),
                 address=eat_drink_data.get("address"),
+                day=eat_drink_data.get("day"),
                 comments=eat_drink_data.get("comments"),
                 external_url=eat_drink_data.get("external_url"),
             )
@@ -104,6 +105,7 @@ def update_trip(trip_id):
                 name=eat_drink_data.get("name"),
                 coordinates=eat_drink_data.get("coordinates"),
                 address=eat_drink_data.get("address"),
+                day=eat_drink_data.get("day"),
                 comments=eat_drink_data.get("comments"),
                 external_url=eat_drink_data.get("external_url"),
             )
@@ -119,6 +121,7 @@ def update_trip(trip_id):
                 name=stay_data.get("name"),
                 coordinates=stay_data.get("coordinates"),
                 address=stay_data.get("address"),
+                day=stay_data.get("day"),
                 price=stay_data.get("price"),
                 status=stay_data.get("status"),
                 comments=stay_data.get("comments"),
@@ -130,6 +133,7 @@ def update_trip(trip_id):
                 name=stay_data.get("name"),
                 coordinates=stay_data.get("coordinates"),
                 address=stay_data.get("address"),
+                day=stay_data.get("day"),
                 price=stay_data.get("price"),
                 status=stay_data.get("status"),
                 comments=stay_data.get("comments"),
@@ -147,6 +151,7 @@ def update_trip(trip_id):
                 name=explore_data.get("name"),
                 coordinates=explore_data.get("coordinates"),
                 address=explore_data.get("address"),
+                day=explore_data.get("day"),
                 price=explore_data.get("price"),
                 comments=explore_data.get("comments"),
                 external_url=explore_data.get("external_url"),
@@ -157,6 +162,7 @@ def update_trip(trip_id):
                 name=explore_data.get("name"),
                 coordinates=explore_data.get("coordinates"),
                 address=explore_data.get("address"),
+                day=explore_data.get("day"),
                 price=explore_data.get("price"),
                 comments=explore_data.get("comments"),
                 external_url=explore_data.get("external_url"),
@@ -173,6 +179,7 @@ def update_trip(trip_id):
                 name=essentials_data.get("name"),
                 coordinates=essentials_data.get("coordinates"),
                 address=essentials_data.get("address"),
+                day=essentials_data.get("day"),
                 comments=essentials_data.get("comments"),
                 external_url=essentials_data.get("external_url"),
             )
@@ -182,6 +189,7 @@ def update_trip(trip_id):
                 name=essentials_data.get("name"),
                 coordinates=essentials_data.get("coordinates"),
                 address=essentials_data.get("address"),
+                day=essentials_data.get("day"),
                 comments=essentials_data.get("comments"),
                 external_url=essentials_data.get("external_url"),
             )
@@ -197,6 +205,7 @@ def update_trip(trip_id):
                 name=getting_around_data.get("name"),
                 coordinates=getting_around_data.get("coordinates"),
                 address=getting_around_data.get("address"),
+                day=getting_around_data.get("day"),
                 comments=getting_around_data.get("comments"),
                 external_url=getting_around_data.get("external_url"),
             )
@@ -206,6 +215,7 @@ def update_trip(trip_id):
                 name=getting_around_data.get("name"),
                 coordinates=getting_around_data.get("coordinates"),
                 address=getting_around_data.get("address"),
+                day=getting_around_data.get("day"),
                 comments=getting_around_data.get("comments"),
                 external_url=getting_around_data.get("external_url"),
             )

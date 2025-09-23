@@ -38,6 +38,7 @@ class Explore(db.Model):
     name = Column(String, nullable=False)
     coordinates = Column(String)
     address = Column(String)
+    day = Column(Integer, default=1)
     price = Column(String)
     comments = Column(String)
     external_url = Column(String)
@@ -48,6 +49,7 @@ class Explore(db.Model):
             "name": self.name,
             "coordinates": self.coordinates,
             "address": self.address,
+            "day": self.day,
             "price": self.price,
             "comments": self.comments,
             "external_url": self.external_url,
@@ -61,6 +63,7 @@ class Stay(db.Model):
     coordinates = Column(String)
     address = Column(String)
     price = Column(String)
+    day = Column(Integer, default=1)
     status = Column(String)
     comments = Column(String)
     external_url = Column(String)
@@ -71,6 +74,7 @@ class Stay(db.Model):
             "name": self.name,
             "coordinates": self.coordinates,
             "address": self.address,
+            "day": self.day,
             "price": self.price,
             "status": self.status,
             "comments": self.comments,
@@ -84,6 +88,7 @@ class EatDrink(db.Model):
     name = Column(String)
     coordinates = Column(String)
     address = Column(String)
+    day = Column(Integer, default=1)
     comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
@@ -93,6 +98,7 @@ class EatDrink(db.Model):
             "name": self.name,
             "coordinates": self.coordinates,
             "address": self.address,
+            "day": self.day,
             "comments": self.comments,
             "external_url": self.external_url,
             "trip_id": self.trip_id
@@ -104,6 +110,7 @@ class Essentials(db.Model):
     name = Column(String)
     coordinates = Column(String)
     address = Column(String)
+    day = Column(Integer, default=1)
     comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
@@ -113,6 +120,7 @@ class Essentials(db.Model):
             "name": self.name,
             "coordinates": self.coordinates,
             "address": self.address,
+            "day": self.day,
             "comments": self.comments,
             "external_url": self.external_url,
             "trip_id": self.trip_id
@@ -124,6 +132,7 @@ class GettingAround(db.Model):
     name = Column(String)
     coordinates = Column(String)
     address = Column(String)
+    day = Column(Integer, default=1)
     comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
@@ -133,6 +142,7 @@ class GettingAround(db.Model):
             "name": self.name,
             "coordinates": self.coordinates,
             "address": self.address,
+            "day": self.day,
             "comments": self.comments,
             "external_url": self.external_url,
             "trip_id": self.trip_id
