@@ -278,7 +278,14 @@ def get_getting_around_of_trip(trip_id):
     getting_around = data_manager.get_getting_around_by_trip(trip_id)
     return jsonify([around.to_dict() for around in getting_around])
 
-#in the route, when I get a trip, I get everything from that trip (foods, etc)
+
+@app.route('/trips/<int:trip_id>/suggestions', methods=['POST'])
+def get_popup_answers(trip_id):
+    """Receive json from the frontend"""
+    initial_json = request.get_json()
+    print(f"Received json from trip {trip_id}")
+    return jsonify(initial_json), 201
+
 
 
 if __name__ == "__main__":
