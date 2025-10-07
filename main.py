@@ -5,6 +5,16 @@ from flask_cors import CORS
 from data_manager import DataManager
 from data_models import db
 
+from services.overpass_service import fetch_overpass_results
+from services.overpass_queries import (
+    query_places_explore_outdoor,
+    query_places_explore_indoor,
+    query_stays,
+    query_eat_drink,
+    query_essentials,
+    query_getting_around
+)
+
 app = Flask(__name__)
 CORS(app)
 
@@ -280,11 +290,45 @@ def get_getting_around_of_trip(trip_id):
 
 
 @app.route('/trips/<int:trip_id>/suggestions', methods=['POST'])
-def get_popup_answers(trip_id):
-    """Receive json from the frontend"""
-    initial_json = request.get_json()
-    print(f"Received json from trip {trip_id}")
-    return jsonify(initial_json), 201
+def get_suggestions(trip_id):
+    # Step 1: Get JSON from frontend
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input received"}), 400
+
+    # Step 2: Extract key fields
+    category = data.get("category")
+    activity_type = data.get("activityType") # optional for places to explore
+    cuisine = data.get("cuisine")  # optional for eat & drink
+    style = data.get("style") # optional for stays
+    type_answer = data.get("type") # optional for essentials and getting around
+    lat = data.get("lat")
+    lon = data.get("lon")
+    radius = data.get("radius", 1000)  # default to 1km if not provided
+
+    # Step 3: Select correct query function
+    if category == "explore" and activity_type == "Outdoor":
+        my_query = query_places_explore_outdoor(lat, lon, radius)
+    elif category == "explore" and activity_type == "Indoor":
+        my_query = query_places_explore_indoor(lat, lon, radius)
+    elif category == "stays":
+        my_query = query_stays(lat, lon, radius, style)
+    elif category == "eatDrink":
+        my_query = query_eat_drink(lat, lon, radius, cuisine)
+    elif category == "essentials":
+        my_query = query_essentials(lat, lon, radius, type_answer)
+    elif category == "gettingAround":
+        my_query = query_getting_around(lat, lon, radius, type_answer)
+    else:
+        return jsonify({"error": "No matching query found"}), 400
+
+    # Step 4: Fetch results
+    try:
+        results = fetch_overpass_results(my_query)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify(results), 200
 
 
 
