@@ -3,7 +3,7 @@ from typing import List
 
 
 def query_places_explore_outdoor(lat: float, lon: float, radius: int) -> str:
-    return f"""
+    combined_query = f"""
     [out:json][timeout:180];
     (
       /* --- Natural features --- */
@@ -40,9 +40,14 @@ def query_places_explore_outdoor(lat: float, lon: float, radius: int) -> str:
     )->.indoors;
 
     /* --- Combine: all outdoor natural + attractions minus indoor --- */
-    (.natural; (.all - .indoors););
+    (
+      .natural; 
+      (.all; - .indoors;);
+    );
     out center;
     """
+    print (combined_query)
+    return combined_query
 
 
 def query_places_explore_indoor(lat: float, lon: float, radius: int) -> str:
@@ -100,12 +105,9 @@ def query_stays(lat: float, lon: float, radius: int, styles: List[str]) -> str:
         """,
         "hostel": """node[tourism=hostel]; way[tourism=hostel]; relation[tourism=hostel];""",
         "budget": """
-            node[tourism=hotel][stars<=2];
-            way[tourism=hotel][stars<=2];
-            relation[tourism=hotel][stars<=2];
-            node[tourism=guest_house];
-            way[tourism=guest_house];
-            relation[tourism=guest_house];
+            node[tourism=hotel][stars~"^[0-2]$"];
+            way[tourism=hotel][stars~"^[0-2]$"];
+            relation[tourism=hotel][stars~"^[0-2]$"];
         """,
         "midrange": """
             node[tourism=hotel][stars=3];
@@ -114,14 +116,14 @@ def query_stays(lat: float, lon: float, radius: int, styles: List[str]) -> str:
             node[tourism=hotel][stars=4];
             way[tourism=hotel][stars=4];
             relation[tourism=hotel][stars=4];
-            node[tourism=guest_house];
-            way[tourism=guest_house];
-            relation[tourism=guest_house];
         """,
         "luxury": """
-            node[tourism=hotel][stars>=4];
-            way[tourism=hotel][stars>=4];
-            relation[tourism=hotel][stars>=4];
+            node[tourism=hotel][stars=4];
+            way[tourism=hotel][stars=4];
+            relation[tourism=hotel][stars=4];
+            node[tourism=hotel][stars=5];
+            way[tourism=hotel][stars=5];
+            relation[tourism=hotel][stars=5];
             node[tourism=resort];
             way[tourism=resort];
             relation[tourism=resort];
@@ -138,9 +140,6 @@ def query_stays(lat: float, lon: float, radius: int, styles: List[str]) -> str:
             node[tourism=resort];
             way[tourism=resort];
             relation[tourism=resort];
-            node[tourism=hotel][name~"resort",i];
-            way[tourism=hotel][name~"resort",i];
-            relation[tourism=hotel][name~"resort",i];
         """
     }
 
@@ -159,6 +158,7 @@ def query_stays(lat: float, lon: float, radius: int, styles: List[str]) -> str:
     combined_query = combined_query.replace(';', f'(around:{radius},{lat},{lon});')
 
     # Wrap with Overpass JSON output and timeout
+    print (f"[out:json][timeout:180];({combined_query});out center;")
     return f"[out:json][timeout:180];({combined_query});out center;"
 
 
