@@ -1,4 +1,4 @@
-import os
+import os, json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -14,6 +14,7 @@ from services.overpass_queries import (
     query_essentials,
     query_getting_around
 )
+from services.openai_service import get_selection_via_openai
 
 app = Flask(__name__)
 CORS(app)
@@ -328,8 +329,16 @@ def get_suggestions(trip_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    return jsonify(results), 200
+    top_selection_text = get_selection_via_openai(data, results)
 
+    try:
+        top_selection = json.loads(top_selection_text)
+    except json.JSONDecodeError:
+        # If GPT response isn't valid JSON, return it as-is for debugging
+        return jsonify({"error": "Invalid JSON from OpenAI",
+                        "raw": top_selection_text}), 500
+
+    return jsonify(top_selection), 200
 
 
 if __name__ == "__main__":
