@@ -292,6 +292,7 @@ def get_getting_around_of_trip(trip_id):
 
 @app.route('/trips/<int:trip_id>/suggestions', methods=['POST'])
 def get_suggestions(trip_id):
+
     # Step 1: Get JSON from frontend
     data = request.get_json()
     if not data:
@@ -323,13 +324,32 @@ def get_suggestions(trip_id):
     else:
         return jsonify({"error": "No matching query found"}), 400
 
-    # Step 4: Fetch results
+    # Step 4: Fetch results from overpass
     try:
         results = fetch_overpass_results(my_query)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    top_selection_text = get_selection_via_openai(data, results)
+    # Step 5: Fetch all existing places for this trip
+    explore = data_manager.get_explore_by_trip(trip_id)
+    stays = data_manager.get_stays_by_trip(trip_id)
+    eat_drink = data_manager.get_eat_drink_by_trip(trip_id)
+    essentials = data_manager.get_essentials_by_trip(trip_id)
+    getting_around = data_manager.get_getting_around_by_trip(trip_id)
+
+    # Combine into a single list of dicts with name + lat/lon
+    existing_markers = []
+    for item_list in [explore, stays, eat_drink, essentials, getting_around]:
+        for item in item_list:
+            if item.coordinates is not None:
+                existing_markers.append({
+                    "name": item.name,
+                    "lat": float(item.coordinates.split(",")[0].strip()),
+                    "lon": float(item.coordinates.split(",")[1].strip())
+            })
+
+    # Step 6: Call AI function to make the selection of the most relevant results
+    top_selection_text = get_selection_via_openai(data, results, existing_markers)
 
     try:
         top_selection = json.loads(top_selection_text)
