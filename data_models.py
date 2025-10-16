@@ -12,6 +12,11 @@ class User(db.Model):
 
     # One user can have many trips
     trips = relationship("Trip", backref="user")
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "password": self.password}
 
 
 class Trip(db.Model):

@@ -113,7 +113,7 @@ class DataManager():
             print("An error has occurred while creating trip: ", str(e))
 
 
-    def get_trips(self):
+    def get_trips(self, user_id):
         """Retrieve all trips from the database.
 
         Returns:
@@ -121,7 +121,7 @@ class DataManager():
             None: If an error occurred.
         """
         try:
-            trips = Trip.query.all()
+            trips = Trip.query.filter_by(user_id=user_id).all()
             return trips
         except SQLAlchemyError as e:
             print("A database error occurred: ", str(e))

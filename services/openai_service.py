@@ -63,7 +63,7 @@ Important rules:
           Answers: ["Train stations", "Bus stops", "Parking spots", "Bike rentals", "Charging Stations", "Car rental"]
 
 
-3. You will also receive 'existing_markers', which are the locations the user already has and you must NOT suggest them.
+3. You will also receive 'existing_markers', which are the locations the user already has. DO NOT suggest any places that have the same 'lat' and 'lon' (filter them out!).
 
 4. Use the user's answers to **filter the Overpass elements**. Only keep elements that satisfy the criteria for that category, if that is possible.
 

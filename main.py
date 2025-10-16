@@ -1,9 +1,11 @@
 import os, json
 from flask import Flask, request, jsonify
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_cors import CORS
+from functools import wraps  # Importing wraps
 
 from data_manager import DataManager
-from data_models import db
+from data_models import db, User
 
 from services.overpass_service import fetch_overpass_results
 from services.overpass_queries import (
@@ -18,6 +20,9 @@ from services.openai_service import get_selection_via_openai
 
 app = Flask(__name__)
 CORS(app)
+
+app.config['JWT_SECRET_KEY'] = 'your_secret_key_here'
+jwt = JWTManager(app)
 
 # Build absolute path to database
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -34,21 +39,61 @@ data_manager = DataManager()
 # with app.app_context():
 #     db.create_all()
 
-# THERE ARE NO USER ROUTES HERE
-# @app.route('/', methods=['GET'])
-# # """" Renders the home page # """"
-# def index():
-#     return render_template('index.html')
+def admin_required(fn):
+    @wraps(fn)
+    @jwt_required()
+    def wrapper(*args, **kwargs):
+        claims = get_jwt()
+        if claims['role'] != 'admin':
+            return jsonify(msg='You are not allowed to see this, you are not an admin!'), 403
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    print("Trying to login")
+    email = request.json.get('email')
+    password = request.json.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    if user:
+        user_dictionary = user.to_dict()
+        print(user)
+        if not user_dictionary or user_dictionary['password'] != password:
+            return jsonify(msg="Bad username or password"), 401
+
+    access_token = create_access_token(identity=email, additional_claims={"role": "user"})
+    return jsonify(access_token=access_token)
+
+
+@app.route('/register', methods=['POST'])
+def register():
+    email = request.json.get('email')
+    password = request.json.get('password')
+
+    new_user = data_manager.create_user(email, password)
+    if new_user:
+        return jsonify(new_user.to_dict())
 
 
 @app.route('/trips', methods=['GET'])
+@jwt_required()
 def get_all_trips():
     """ Retrieves and displays all trips. """
-    trips = data_manager.get_trips()
+    current_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_email).first()
+    if user:
+        user_dictionary = user.to_dict()
+        if not user_dictionary:
+            return jsonify(msg="This user doesn't exist"), 401
+
+    trips = data_manager.get_trips(user_dictionary["id"])
     return jsonify([trip.to_dict() for trip in trips])
 
 
 @app.route('/trips', methods=['POST'])
+@jwt_required()
 def create_trip():
     """Creates a new trip object, with the temporary name of New Trip, and saves it to the database. """
     trip_name = request.json.get("name", "New Trip")
@@ -57,6 +102,7 @@ def create_trip():
 
 
 @app.route('/trips/<int:trip_id>', methods=['DELETE'])
+@jwt_required()
 def delete_trip(trip_id):
     """Deletes an entire trip from the database. """
     data_manager.delete_trip(trip_id)
@@ -64,6 +110,7 @@ def delete_trip(trip_id):
 
 
 @app.route('/trips/<int:trip_id>', methods=['GET'])
+@jwt_required()
 def open_trip(trip_id):
     """ Retrieves and displays all tables from the trip with the specified ID. """
     trip = data_manager.open_trip(trip_id)
@@ -85,6 +132,7 @@ def open_trip(trip_id):
 
 
 @app.route('/trips/<int:trip_id>', methods=['PUT'])
+@jwt_required()
 def update_trip(trip_id):
     """Updates all data from the forms."""
     data = request.get_json()
@@ -261,36 +309,42 @@ def update_trip(trip_id):
 
 
 @app.route('/trips/<int:trip_id>/explore', methods=['GET'])
+@jwt_required()
 def get_explore_of_trip(trip_id):
     explore = data_manager.get_explore_by_trip(trip_id)
     return jsonify([expl.to_dict() for expl in explore])
 
 
 @app.route('/trips/<int:trip_id>/stays', methods=['GET'])
+@jwt_required()
 def get_stays_of_trip(trip_id):
     stays = data_manager.get_stays_by_trip(trip_id)
     return jsonify([stay.to_dict() for stay in stays])
 
 
 @app.route('/trips/<int:trip_id>/eat-drink', methods=['GET'])
+@jwt_required()
 def get_eat_drink_of_trip(trip_id):
     eat_drink = data_manager.get_eat_drink_by_trip(trip_id)
     return jsonify([eat.to_dict() for eat in eat_drink])
 
 
 @app.route('/trips/<int:trip_id>/essentials', methods=['GET'])
+@jwt_required()
 def get_essentials_of_trip(trip_id):
     essentials = data_manager.get_essentials_by_trip(trip_id)
     return jsonify([essential.to_dict() for essential in essentials])
 
 
 @app.route('/trips/<int:trip_id>/getting-around', methods=['GET'])
+@jwt_required()
 def get_getting_around_of_trip(trip_id):
     getting_around = data_manager.get_getting_around_by_trip(trip_id)
     return jsonify([around.to_dict() for around in getting_around])
 
 
 @app.route('/trips/<int:trip_id>/suggestions', methods=['POST'])
+@jwt_required()
 def get_suggestions(trip_id):
 
     # Step 1: Get JSON from frontend
@@ -327,6 +381,7 @@ def get_suggestions(trip_id):
     # Step 4: Fetch results from overpass
     try:
         results = fetch_overpass_results(my_query)
+        print("results:", results)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -347,6 +402,9 @@ def get_suggestions(trip_id):
                     "lat": float(item.coordinates.split(",")[0].strip()),
                     "lon": float(item.coordinates.split(",")[1].strip())
             })
+    print("Existing markers:", existing_markers)
+
+
 
     # Step 6: Call AI function to make the selection of the most relevant results
     top_selection_text = get_selection_via_openai(data, results, existing_markers)
