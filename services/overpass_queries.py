@@ -44,7 +44,7 @@ def query_places_explore_outdoor(lat: float, lon: float, radius: int) -> str:
       .natural; 
       (.all; - .indoors;);
     );
-    out center;
+    out center 500;
     """
     print (combined_query)
     return combined_query
@@ -73,7 +73,7 @@ def query_places_explore_indoor(lat: float, lon: float, radius: int) -> str:
           way["historic"][name](around:{radius},{lat},{lon});
           relation["historic"][name](around:{radius},{lat},{lon});
         );
-        out center;
+        out center 500;
         """
 
 
@@ -158,8 +158,8 @@ def query_stays(lat: float, lon: float, radius: int, styles: List[str]) -> str:
     combined_query = combined_query.replace(';', f'(around:{radius},{lat},{lon});')
 
     # Wrap with Overpass JSON output and timeout
-    print (f"[out:json][timeout:180];({combined_query});out center;")
-    return f"[out:json][timeout:180];({combined_query});out center;"
+    print (f"[out:json][timeout:180];({combined_query});out center 500;")
+    return f"[out:json][timeout:180];({combined_query});out center 500;"
 
 
 def query_eat_drink(lat: float, lon: float, radius: int, cuisine: str = ".*") -> str:
@@ -170,7 +170,7 @@ def query_eat_drink(lat: float, lon: float, radius: int, cuisine: str = ".*") ->
           way[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
           relation[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
         );
-        out center;
+        out center 500;
         """
 
 
@@ -218,7 +218,7 @@ def query_essentials(lat: float, lon: float, radius: int, ess_type: str) -> str:
     # Replace radius/lat/lon in query
     query_body = queries[ess_type].replace(';', f'(around:{radius},{lat},{lon});')
 
-    return f"[out:json][timeout:180];({query_body});out center;"
+    return f"[out:json][timeout:180];({query_body});out center 500;"
 
 
 
@@ -284,4 +284,4 @@ def query_getting_around(lat: float, lon: float, radius: int, around_types: list
     # Replace ; with the around syntax
     combined_query = combined_query.replace(";", f"(around:{radius},{lat},{lon});")
 
-    return f"[out:json][timeout:180];({combined_query});out center;"
+    return f"[out:json][timeout:180];({combined_query});out center 500;"

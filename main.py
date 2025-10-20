@@ -410,10 +410,26 @@ def get_suggestions(trip_id):
             })
     print("Existing markers:", existing_markers)
 
+    # Simple filtering of results based on existing markers
+    precision = 6  # rounding to avoid tiny floating point differences
+
+    existing_coordinates = {(round(marker['lat'], precision), round(marker['lon'], precision)) for marker in existing_markers}
+
+    filtered_elements = []
+
+    for el in results['elements']:
+        if 'lat' in el and 'lon' in el:
+            if (round(el['lat'], precision),
+                round(el['lon'], precision)) not in existing_coordinates:
+                # keep this element
+                filtered_elements.append(el)
+        else:
+            print(f"Skipping element with missing coordinates: {el}")
 
 
     # Step 6: Call AI function to make the selection of the most relevant results
-    top_selection_text = get_selection_via_openai(data, results, existing_markers)
+    top_selection_text = get_selection_via_openai(data, filtered_elements)
+    print("AI selection:", top_selection_text)
 
     try:
         top_selection = json.loads(top_selection_text)

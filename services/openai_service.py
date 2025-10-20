@@ -63,33 +63,31 @@ Important rules:
           Answers: ["Train stations", "Bus stops", "Parking spots", "Bike rentals", "Charging Stations", "Car rental"]
 
 
-3. You will also receive 'existing_markers', which are the locations the user already has. DO NOT suggest any places that have the same 'lat' and 'lon' (filter them out!).
+3. Use the user's answers to **filter the Overpass elements**. Only keep elements that satisfy the criteria for that category, if that is possible.
 
-4. Use the user's answers to **filter the Overpass elements**. Only keep elements that satisfy the criteria for that category, if that is possible.
-
-5. Selection rules:
+4. Selection rules:
    - Return exactly 5 places.
    - Prioritize relevance, ratings, and the user's filter answers.
    - Keep all original keys in each element (id, type, lat/lon or center, tags, nodes/members if present).
 
-6. Always respect the category context: filters should only be applied based on the answers for that category.
+5. Always respect the category context: filters should only be applied based on the answers for that category.
 
-7. After you select the top 5, add a key: value pair to each of these elements. The key should be 'description' and
+6. After you select the top 5, add a key: value pair to each of these elements. The key should be 'description' and
     the value should be 1 sentence that describes the place.
     
-8. Other than that, do not change the structure of any remaining elements; only eliminate elements that do not match the user's answers.
+7. Other than that, do not change the structure of any remaining elements; only eliminate elements that do not match the user's answers.
 
-9. Return ONLY the selected elements in the exact same structure as you got them (a list of dictionaries) + the extra description.
+8. Return ONLY the selected elements in the exact same structure as you got them (a list of dictionaries) + the extra description.
 """
 
 
-def get_selection_via_openai(user_request, elements, existing_markers):
+def get_selection_via_openai(user_request, elements):
     if not api_key:
         raise RuntimeError("Set OPENAI_API_KEY in your environment.")
 
     client = OpenAI(api_key=api_key)
 
-    user_block = f"User request:\n{user_request}\n\nElements:\n{elements}\n\nExisting markers:{existing_markers}"
+    user_block = f"User request:\n{user_request}\n\nElements:\n{elements}"
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
