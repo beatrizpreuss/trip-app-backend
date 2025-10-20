@@ -96,8 +96,14 @@ def get_all_trips():
 @jwt_required()
 def create_trip():
     """Creates a new trip object, with the temporary name of New Trip, and saves it to the database. """
+    current_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_email).first()
+
+    if not user:
+        return jsonify(msg="Invalid user"), 401
+
     trip_name = request.json.get("name", "New Trip")
-    trip = data_manager.create_trip(trip_name)
+    trip = data_manager.create_trip(trip_name, user.id)
     return jsonify({"trip": trip.to_dict()}), 201
 
 

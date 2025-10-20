@@ -5,9 +5,6 @@ from data_models import db, User, Trip, Stay, Explore, EatDrink, Essentials, Get
 
 class DataManager():
 
-    # USER FUNCTIONS
-    # Will user functions be needed after implementation of authentication?
-
     def create_user(self, email, password):
         """Create and save a new user to the database.
 
@@ -93,7 +90,7 @@ class DataManager():
 
     # TRIP FUNCTIONS
 
-    def create_trip(self, name):
+    def create_trip(self, name, user_id):
         """Create and save a new trip to the database.
 
         Args:
@@ -103,7 +100,7 @@ class DataManager():
             Trip: The newly created trip object if successful.
             None: If an error occurred.
         """
-        new_trip = Trip(name=name)
+        new_trip = Trip(name=name, user_id=user_id)
         try:
             db.session.add(new_trip)
             db.session.commit()
