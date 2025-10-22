@@ -435,10 +435,13 @@ def get_suggestions(trip_id):
         else:
             print(f"Skipping element with missing coordinates: {el}")
 
-
     # Step 6: Call AI function to make the selection of the most relevant results
-    top_selection_text = get_selection_via_openai(data, filtered_elements)
-    print("AI selection:", top_selection_text)
+    try:
+        top_selection_text = get_selection_via_openai(data, filtered_elements)
+        print("AI selection:", top_selection_text)
+    except Exception as e:
+        print("Error reaching OpenAI:", str(e))
+        return jsonify({"error": "openai_unreachable"}), 502
 
     try:
         top_selection = json.loads(top_selection_text)
