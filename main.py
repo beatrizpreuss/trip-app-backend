@@ -72,9 +72,18 @@ def register():
     email = request.json.get('email')
     password = request.json.get('password')
 
+    if not email or not password:
+        return jsonify({'msg': 'Email and password are required'}), 400
+
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        return jsonify({'msg': 'Email already registered'}), 400
+
     new_user = data_manager.create_user(email, password)
-    if new_user:
-        return jsonify(new_user.to_dict())
+    if not new_user:
+        return jsonify({'msg': 'Error creating user'}), 500
+
+    return jsonify({'msg': 'User created successfully'}), 201
 
 
 @app.route('/trips', methods=['GET'])
