@@ -8,7 +8,7 @@ OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 UA = {"User-Agent": "osm-query-from-form/1.0"}
 
 SYSTEM_PROMPT = """
-You are an intelligent selector for Overpass places. Your task is to choose the top 5 places from a given list 
+You are an intelligent selector for Overpass places. Your task is to choose the top places from a given list 
 based on relevance, ratings, and user-provided filters.
 
 Important rules:
@@ -23,7 +23,8 @@ Important rules:
        "friendly": "Yes, both",
        "lat": 52.404483863130395,
        "lon": 12.475344022961426,
-       "radius": 2997
+       "radius": 2997,
+       "quantity: 10
    }
 
 2. The category-specific questions and answers to apply as filters are:
@@ -66,13 +67,13 @@ Important rules:
 3. Use the user's answers to **filter the Overpass elements**. Only keep elements that satisfy the criteria for that category, if that is possible.
 
 4. Selection rules:
-   - Return exactly 5 places.
+   - The number of places returned will be dependent on the "quantity" key from the user request (can be 5, 10 or 20).
    - Prioritize relevance, ratings, and the user's filter answers.
    - Keep all original keys in each element (id, type, lat/lon or center, tags, nodes/members if present).
 
 5. Always respect the category context: filters should only be applied based on the answers for that category.
 
-6. After you select the top 5, add a key: value pair to each of these elements. The key should be 'description' and
+6. After you select the top places, add a key: value pair to each of these elements. The key should be 'description' and
     the value should be 1 sentence that describes the place.
     
 7. Other than that, do not change the structure of any remaining elements; only eliminate elements that do not match the user's answers.

@@ -396,7 +396,7 @@ def get_suggestions(trip_id):
     # Step 4: Fetch results from overpass
     try:
         results = fetch_overpass_results(my_query)
-        print("results:", results)
+        # print("results:", results)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -417,7 +417,7 @@ def get_suggestions(trip_id):
                     "lat": float(item.coordinates.split(",")[0].strip()),
                     "lon": float(item.coordinates.split(",")[1].strip())
             })
-    print("Existing markers:", existing_markers)
+    # print("Existing markers:", existing_markers)
 
     # Simple filtering of results based on existing markers
     precision = 6  # rounding to avoid tiny floating point differences
@@ -432,8 +432,8 @@ def get_suggestions(trip_id):
                 round(el['lon'], precision)) not in existing_coordinates:
                 # keep this element
                 filtered_elements.append(el)
-        else:
-            print(f"Skipping element with missing coordinates: {el}")
+        # else:
+            # print(f"Skipping element with missing coordinates: {el}")
 
     # Step 6: Call AI function to make the selection of the most relevant results
     try:
