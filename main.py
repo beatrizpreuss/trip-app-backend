@@ -16,7 +16,7 @@ from services.overpass_queries import (
     query_essentials,
     query_getting_around
 )
-from services.openai_service import get_selection_via_openai
+from services.openai_service import get_selection_via_openai, get_destination_suggestion
 
 app = Flask(__name__)
 CORS(app)
@@ -52,14 +52,12 @@ def admin_required(fn):
 
 @app.route('/login', methods=['POST'])
 def login():
-    print("Trying to login")
     email = request.json.get('email')
     password = request.json.get('password')
 
     user = User.query.filter_by(email=email).first()
     if user:
         user_dictionary = user.to_dict()
-        print(user)
         if not user_dictionary or user_dictionary['password'] != password:
             return jsonify(msg="Bad username or password"), 401
 
@@ -314,12 +312,46 @@ def update_trip(trip_id):
 # the locations that were added to the map. # """"
 
 
-@app.route('/destination-ideas', methods=['GET', 'POST'])
-# """" On GET, renders the page. On POST, retrieves data from the questionnaire,
-# runs the AI with the adapted prompt AND SAVES IT TO A AI-SUGGESTIONS DATABASE?# """"
+@app.route('/find-destination', methods=['POST'])
+def get_destination():
+    """ On GET, renders the page. On POST, retrieves data from the questionnaire,
+     runs the AI with the adapted prompt AND SAVES IT TO A AI-SUGGESTIONS DATABASE?# """
+
+    # Step 1: Get JSON from frontend
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input received"}), 400
+
+    # Step 2: Extract key fields
+    location = data.get("location")
+    goal = data.get("goal")
+    interests = data.get("interests")
+    length = data.get("length")
+    transport = data.get("transport")
+    preferred = data.get("preferred")
+    avoid = data.get("avoid")
+    season = data.get("season")
+    acc = data.get("acc")
+
+    # Step 3: Call AI function to get suggestions of destinations
+    try:
+        destinations = get_destination_suggestion(location, goal, interests, length, transport, preferred, avoid, season, acc)
+        print("AI destinations suggestions:", destinations)
+    except Exception as e:
+        print("Error reaching OpenAI:", str(e))
+        return jsonify({"error": "openai_unreachable"}), 502
+
+    try:
+        destination_suggestions = json.loads(destinations)
+    except json.JSONDecodeError:
+        # If GPT response isn't valid JSON, return it as-is for debugging
+        return jsonify({"error": "Invalid JSON from OpenAI",
+                        "raw": destinations}), 500
+
+    return jsonify(destination_suggestions), 200
 
 
-@app.route('/destination-ideas/suggestions', methods=['GET'])
+@app.route('/find-destination/suggestions', methods=['GET'])
 # """" Renders the page with the AI suggestions# """"
 
 
@@ -425,7 +457,7 @@ def get_suggestions(trip_id):
     existing_coordinates = {(round(marker['lat'], precision), round(marker['lon'], precision)) for marker in existing_markers}
 
     filtered_elements = []
-
+    print(results)
     for el in results['elements']:
         if 'lat' in el and 'lon' in el:
             if (round(el['lat'], precision),
