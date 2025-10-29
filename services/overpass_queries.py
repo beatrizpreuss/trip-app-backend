@@ -1,62 +1,46 @@
 # QUERIES
 from typing import List
 
-from services.overpass_service import fetch_overpass_results
-
-
-def query_overpass_categories_outdoors(category: str, lat: float, lon: float, radius: int) -> str:
-    """Build Overpass query for a specific category in places to explore -> outdoors."""
-    if category == "natural":
-        elements = (
-            f'node["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
-            f'way["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
-            f'relation["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
-        )
-    elif category == "leisure":
-        elements = (
-            f'node["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
-            f'way["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
-            f'relation["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
-        )
-    elif category == "tourism":
-        elements = (
-            f'node["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
-            f'way["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
-            f'relation["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
-        )
-    elif category == "hiking":
-        elements = (
-            f'way["highway"="path"]["foot"="designated"]["name"](around:{radius},{lat},{lon});'
-            f'relation["route"="hiking"]["name"](around:{radius},{lat},{lon});'
-        )
-    else:
-        raise ValueError("Unknown category")
-
-    query = f"""
-    [out:json][timeout:60];
-    (
-        {elements}
-    );
-    out center;
-    """
-    return query
-
 
 def query_places_explore_outdoor(lat: float, lon: float, radius: int) -> str:
-    """Fetch Overpass elements split by category to avoid timeouts."""
-    categories = ["natural", "leisure", "tourism", "hiking"]
-    all_elements = []
+    """
+    Build a single Overpass query string for all outdoor categories:
+    natural, leisure, tourism, hiking.
+    This combines all categories safely with 'out center' and timeout.
+    """
+    # Define each category query
+    natural_q = (
+        f'node["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
+        f'way["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
+        f'relation["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
+    )
 
-    for cat in categories:
-        query = query_overpass_categories_outdoors(cat, lat, lon, radius)
-        res = fetch_overpass_results(query)
+    leisure_q = (
+        f'node["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
+        f'way["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
+        f'relation["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
+    )
 
-        if "elements" in res:
-            all_elements.extend(res["elements"])
-        elif "error" in res:
-            print(f"Overpass error for category {cat}: {res['error']}")
+    tourism_q = (
+        f'node["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
+        f'way["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
+        f'relation["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
+    )
 
-    return all_elements
+    hiking_q = (
+        f'way["highway"="path"]["foot"="designated"]["name"](around:{radius},{lat},{lon});'
+        f'relation["route"="hiking"]["name"](around:{radius},{lat},{lon});'
+    )
+
+    # Combine all queries into one
+    combined_elements = "\n".join([natural_q, leisure_q, tourism_q, hiking_q])
+
+    # Build final query string with timeout and optimized output
+    final_query = f""" [out:json][timeout:180]; ({combined_elements}); out center 200;
+    """
+
+    return final_query
+
 
 
 def query_places_explore_indoor(lat: float, lon: float, radius: int) -> str:
@@ -167,7 +151,7 @@ def query_stays(lat: float, lon: float, radius: int, styles: List[str]) -> str:
     combined_query = combined_query.replace(';', f'(around:{radius},{lat},{lon});')
 
     # Wrap with Overpass JSON output and timeout
-    return f"[out:json][timeout:180];({combined_query});out center;"
+    return f"[out:json][timeout:180];({combined_query});out center 100;"
 
 
 def query_eat_drink(lat: float, lon: float, radius: int, cuisine: str = ".*") -> str:
@@ -179,7 +163,7 @@ def query_eat_drink(lat: float, lon: float, radius: int, cuisine: str = ".*") ->
               way[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
               relation[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
             );
-            out center;
+            out center 100;
             """
     return f"""
             [out:json][timeout:180];
@@ -188,7 +172,7 @@ def query_eat_drink(lat: float, lon: float, radius: int, cuisine: str = ".*") ->
               way[amenity~"^(restaurant|cafe|bar|fast_food)$"](around:{radius},{lat},{lon});
               relation[amenity~"^(restaurant|cafe|bar|fast_food)$"](around:{radius},{lat},{lon});
             );
-            out center;
+            out center 100;
             """
 
 
@@ -236,7 +220,7 @@ def query_essentials(lat: float, lon: float, radius: int, ess_type: str) -> str:
     # Replace radius/lat/lon in query
     query_body = queries[ess_type].replace(';', f'(around:{radius},{lat},{lon});')
 
-    return f"[out:json][timeout:180];({query_body});out center;"
+    return f"[out:json][timeout:180];({query_body});out center 100;"
 
 
 
@@ -302,4 +286,4 @@ def query_getting_around(lat: float, lon: float, radius: int, around_types: list
     # Replace ; with the around syntax
     combined_query = combined_query.replace(";", f"(around:{radius},{lat},{lon});")
 
-    return f"[out:json][timeout:180];({combined_query});out center;"
+    return f"[out:json][timeout:180];({combined_query});out center 100;"

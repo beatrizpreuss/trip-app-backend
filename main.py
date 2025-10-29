@@ -1,5 +1,4 @@
 import os, json
-import random
 import re
 
 from flask import Flask, request, jsonify
@@ -354,8 +353,9 @@ def get_destination():
     return jsonify(destination_suggestions), 200
 
 
-@app.route('/find-destination/suggestions', methods=['GET'])
-# """" Renders the page with the AI suggestions# """"
+# DON'T NEED THIS ROUTE HERE IN THE BACKEND
+# @app.route('/find-destination/suggestions', methods=['GET'])
+# # """" Renders the page with the AI suggestions# """"
 
 
 @app.route('/trips/<int:trip_id>/explore', methods=['GET'])
@@ -431,6 +431,7 @@ def get_suggestions(trip_id):
 
     # Step 4: Fetch results from overpass
     try:
+        print("Query:" , my_query)
         results = fetch_overpass_results(my_query)
 
     except Exception as e:
@@ -470,6 +471,8 @@ def get_suggestions(trip_id):
     # make sure the element has lat and lon (even when it has a center - which is displayed differently)
     print(len(results["elements"])) # see how many elements overpass returned
     for el in results['elements']:
+        if el.get("nodes"):
+            del el["nodes"]
         lat = el.get("lat") or el.get("center", {}).get("lat")
         lon = el.get("lon") or el.get("center", {}).get("lon")
         if lat and lon:
@@ -477,6 +480,7 @@ def get_suggestions(trip_id):
                 el["lat"] = lat
                 el["lon"] = lon
                 filtered_elements.append(el)
+    print("Filtered elements: ", filtered_elements)
         # else:
             # print(f"Skipping element with missing coordinates: {el}")
 
