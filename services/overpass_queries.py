@@ -1,53 +1,62 @@
 # QUERIES
 from typing import List
 
+from services.overpass_service import fetch_overpass_results
+
+
+def query_overpass_categories_outdoors(category: str, lat: float, lon: float, radius: int) -> str:
+    """Build Overpass query for a specific category in places to explore -> outdoors."""
+    if category == "natural":
+        elements = (
+            f'node["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
+            f'way["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
+            f'relation["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
+        )
+    elif category == "leisure":
+        elements = (
+            f'node["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
+            f'way["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
+            f'relation["leisure"~"park|garden|nature_reserve"]["name"](around:{radius},{lat},{lon});'
+        )
+    elif category == "tourism":
+        elements = (
+            f'node["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
+            f'way["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
+            f'relation["tourism"~"attraction|viewpoint|picnic_site|theme_park"]["name"](around:{radius},{lat},{lon});'
+        )
+    elif category == "hiking":
+        elements = (
+            f'way["highway"="path"]["foot"="designated"]["name"](around:{radius},{lat},{lon});'
+            f'relation["route"="hiking"]["name"](around:{radius},{lat},{lon});'
+        )
+    else:
+        raise ValueError("Unknown category")
+
+    query = f"""
+    [out:json][timeout:60];
+    (
+        {elements}
+    );
+    out center;
+    """
+    return query
+
 
 def query_places_explore_outdoor(lat: float, lon: float, radius: int) -> str:
-    combined_query = f"""
-    [out:json][timeout:180];
-    (
-      /* --- Natural features --- */
-      node["natural"~"water|lake|waterfall|spring|gorge|peak|cliff|valley|ridge|rock|cave_entrance|forest"][name](around:{radius},{lat},{lon});
-      way["natural"~"water|lake|waterfall|spring|gorge|peak|cliff|valley|ridge|rock|cave_entrance|forest"][name](around:{radius},{lat},{lon});
-      relation["natural"~"water|lake|waterfall|spring|gorge|peak|cliff|valley|ridge|rock|cave_entrance|forest"][name](around:{radius},{lat},{lon});
+    """Fetch Overpass elements split by category to avoid timeouts."""
+    categories = ["natural", "leisure", "tourism", "hiking"]
+    all_elements = []
 
-      /* --- Water bodies --- */
-      node["water"~"lake|basin"][name](around:{radius},{lat},{lon});
-      way["water"~"lake|basin"][name](around:{radius},{lat},{lon});
-      relation["water"~"lake|basin"][name](around:{radius},{lat},{lon});
+    for cat in categories:
+        query = query_overpass_categories_outdoors(cat, lat, lon, radius)
+        res = fetch_overpass_results(query)
 
-      /* --- Leisure / nature --- */
-      node["leisure"~"park|garden|nature_reserve"][name](around:{radius},{lat},{lon});
-      way["leisure"~"park|garden|nature_reserve"][name](around:{radius},{lat},{lon});
-      relation["leisure"~"park|garden|nature_reserve"][name](around:{radius},{lat},{lon});
-    )->.natural;
+        if "elements" in res:
+            all_elements.extend(res["elements"])
+        elif "error" in res:
+            print(f"Overpass error for category {cat}: {res['error']}")
 
-    (
-      /* --- All tourism attractions --- */
-      node["tourism"~"attraction|viewpoint|picnic_site|theme_park"][name](around:{radius},{lat},{lon});
-      way["tourism"~"attraction|viewpoint|picnic_site|theme_park"][name](around:{radius},{lat},{lon});
-      relation["tourism"~"attraction|viewpoint|picnic_site|theme_park"][name](around:{radius},{lat},{lon});
-    )->.all;
-
-    (
-      /* --- Indoor / building features to exclude --- */
-      node["indoor"="yes"](around:{radius},{lat},{lon});
-      way["indoor"="yes"](around:{radius},{lat},{lon});
-      relation["indoor"="yes"](around:{radius},{lat},{lon});
-      node["building"](around:{radius},{lat},{lon});
-      way["building"](around:{radius},{lat},{lon});
-      relation["building"](around:{radius},{lat},{lon});
-    )->.indoors;
-
-    /* --- Combine: all outdoor natural + attractions minus indoor --- */
-    (
-      .natural; 
-      (.all; - .indoors;);
-    );
-    out center 500;
-    """
-    print (combined_query)
-    return combined_query
+    return all_elements
 
 
 def query_places_explore_indoor(lat: float, lon: float, radius: int) -> str:
@@ -73,7 +82,7 @@ def query_places_explore_indoor(lat: float, lon: float, radius: int) -> str:
           way["historic"][name](around:{radius},{lat},{lon});
           relation["historic"][name](around:{radius},{lat},{lon});
         );
-        out center 500;
+        out center;
         """
 
 
@@ -158,20 +167,29 @@ def query_stays(lat: float, lon: float, radius: int, styles: List[str]) -> str:
     combined_query = combined_query.replace(';', f'(around:{radius},{lat},{lon});')
 
     # Wrap with Overpass JSON output and timeout
-    print (f"[out:json][timeout:180];({combined_query});out center 500;")
-    return f"[out:json][timeout:180];({combined_query});out center 500;"
+    return f"[out:json][timeout:180];({combined_query});out center;"
 
 
 def query_eat_drink(lat: float, lon: float, radius: int, cuisine: str = ".*") -> str:
+    if cuisine:
+        return f"""
+            [out:json][timeout:180];
+            (
+              node[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
+              way[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
+              relation[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
+            );
+            out center;
+            """
     return f"""
-        [out:json][timeout:180];
-        (
-          node[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
-          way[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
-          relation[amenity~"^(restaurant|cafe|bar|fast_food)$"][cuisine~"{cuisine}",i](around:{radius},{lat},{lon});
-        );
-        out center 500;
-        """
+            [out:json][timeout:180];
+            (
+              node[amenity~"^(restaurant|cafe|bar|fast_food)$"](around:{radius},{lat},{lon});
+              way[amenity~"^(restaurant|cafe|bar|fast_food)$"](around:{radius},{lat},{lon});
+              relation[amenity~"^(restaurant|cafe|bar|fast_food)$"](around:{radius},{lat},{lon});
+            );
+            out center;
+            """
 
 
 def query_essentials(lat: float, lon: float, radius: int, ess_type: str) -> str:
@@ -218,7 +236,7 @@ def query_essentials(lat: float, lon: float, radius: int, ess_type: str) -> str:
     # Replace radius/lat/lon in query
     query_body = queries[ess_type].replace(';', f'(around:{radius},{lat},{lon});')
 
-    return f"[out:json][timeout:180];({query_body});out center 500;"
+    return f"[out:json][timeout:180];({query_body});out center;"
 
 
 
@@ -284,4 +302,4 @@ def query_getting_around(lat: float, lon: float, radius: int, around_types: list
     # Replace ; with the around syntax
     combined_query = combined_query.replace(";", f"(around:{radius},{lat},{lon});")
 
-    return f"[out:json][timeout:180];({combined_query});out center 500;"
+    return f"[out:json][timeout:180];({combined_query});out center;"

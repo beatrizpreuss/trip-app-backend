@@ -10,7 +10,7 @@ def fetch_overpass_results(query: str) -> dict:
     Handles request errors and timeouts.
     """
     try:
-        res = requests.get(OVERPASS_URL, params={"data": query}, headers=UA, timeout=180)
+        res = requests.get(OVERPASS_URL, params={"data": query}, headers=UA, timeout=300)
         res.raise_for_status()
     except requests.exceptions.Timeout:
         return {"error": "Overpass request timed out"}
