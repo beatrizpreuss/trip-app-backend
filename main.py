@@ -1,4 +1,7 @@
 import os, json
+import random
+import re
+
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_cors import CORS
@@ -407,7 +410,8 @@ def get_suggestions(trip_id):
     type_answer = data.get("type") # optional for essentials and getting around
     lat = data.get("lat")
     lon = data.get("lon")
-    radius = data.get("radius", 1000)  # default to 1km if not provided
+    radius = data.get("radius", 2000)  # default to 2km if not provided
+    # print("Lat: ", lat, "Lon: ", lon, "Radius: ", radius)
 
     # Step 3: Select correct query function
     if category == "explore" and activity_type == "Outdoor":
@@ -428,9 +432,15 @@ def get_suggestions(trip_id):
     # Step 4: Fetch results from overpass
     try:
         results = fetch_overpass_results(my_query)
-        # print("results:", results)
+
     except Exception as e:
+        app.logger.exception("Overpass fetch failed")
         return jsonify({"error": str(e)}), 500
+
+    # if results come back empty, return the error message
+    if "elements" not in results:
+        error_msg = results.get("error", "No elements returned")
+        return jsonify({"error": error_msg}), 502
 
     # Step 5: Fetch all existing places for this trip
     explore = data_manager.get_explore_by_trip(trip_id)
@@ -449,20 +459,23 @@ def get_suggestions(trip_id):
                     "lat": float(item.coordinates.split(",")[0].strip()),
                     "lon": float(item.coordinates.split(",")[1].strip())
             })
-    # print("Existing markers:", existing_markers)
 
-    # Simple filtering of results based on existing markers
+    # Simple filtering of results based on existing markers (so I don't get suggested what's already in my trip)
     precision = 6  # rounding to avoid tiny floating point differences
 
     existing_coordinates = {(round(marker['lat'], precision), round(marker['lon'], precision)) for marker in existing_markers}
 
     filtered_elements = []
-    print(results)
+
+    # make sure the element has lat and lon (even when it has a center - which is displayed differently)
+    print(len(results["elements"])) # see how many elements overpass returned
     for el in results['elements']:
-        if 'lat' in el and 'lon' in el:
-            if (round(el['lat'], precision),
-                round(el['lon'], precision)) not in existing_coordinates:
-                # keep this element
+        lat = el.get("lat") or el.get("center", {}).get("lat")
+        lon = el.get("lon") or el.get("center", {}).get("lon")
+        if lat and lon:
+            if (round(lat, precision), round(lon, precision)) not in existing_coordinates: # check if is already existent in my markers
+                el["lat"] = lat
+                el["lon"] = lon
                 filtered_elements.append(el)
         # else:
             # print(f"Skipping element with missing coordinates: {el}")
@@ -470,17 +483,21 @@ def get_suggestions(trip_id):
     # Step 6: Call AI function to make the selection of the most relevant results
     try:
         top_selection_text = get_selection_via_openai(data, filtered_elements)
-        print("AI selection:", top_selection_text)
+
     except Exception as e:
         print("Error reaching OpenAI:", str(e))
         return jsonify({"error": "openai_unreachable"}), 502
 
     try:
-        top_selection = json.loads(top_selection_text)
+        clean_text = re.sub(r"^```(?:json)?|```$", "", top_selection_text.strip(), flags=re.MULTILINE)
+        top_selection = json.loads(clean_text)
+
+        print("AI selection:", len(top_selection))
+
     except json.JSONDecodeError:
         # If GPT response isn't valid JSON, return it as-is for debugging
-        return jsonify({"error": "Invalid JSON from OpenAI",
-                        "raw": top_selection_text}), 500
+        return jsonify(
+            {"error": "Invalid JSON from OpenAI", "raw": clean_text}), 500
 
     return jsonify(top_selection), 200
 
