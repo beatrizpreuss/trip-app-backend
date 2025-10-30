@@ -118,19 +118,24 @@ def get_destination_suggestion(location, goal, interests, length, transport, pre
         Your goal is to recommend 5 specific destinations that best match the user's preferences.
         Each destination should include:
         - A short description of why it’s a good fit.
-        - Key highlights or activities that match the user’s interests.
-        - Optionally, travel practicality (distance, transport suitability, or best time to visit).
+        - Key highlights or activities that match the user’s interests (not too general).
+        - Travel practicality (distance, transport suitability, and best time to visit).
+        - Other tips that may be useful to the user, such as safety, items to not forget, etc.
         
         Be creative but realistic — suggest real, accessible destinations.
         Keep the tone friendly and informative.
+        Include emojis on the name (flag of the country) and a few others inside the text.
         Return your answer in valid JSON format like this:
         {
           "destinations": [
             {
-              "name": "Kyoto, Japan",
-              "description": "A cultural hub with temples and food experiences...",
-              "highlights": ["temples", "gardens", "traditional cuisine"],
-              ...
+              "name": "🇯🇵 Kyoto, Japan",
+              "description": "A cultural hub with temples and food experiences...⛩️",
+              "highlights": ["The temple xxx is a great", "The gardens in ... are a must see", " Try the traditional cuisine (order a plate of ...."],
+              "travel_practicality": {"best_time_to_visit": "Autumn for beautiful fall colors...🍂",
+                                    "distance": "Approx. 1,500 km from...", 
+                                    "transport": "Train to Berlin..."},
+            "other_tips": "Not many people speak English..., Don't forget to bring..., Some places can be dangerous for tourists, hire a guide, etc ☂️"
             },
             ...
           ]
