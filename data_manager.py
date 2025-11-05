@@ -5,10 +5,11 @@ from data_models import db, User, Trip, Stay, Explore, EatDrink, Essentials, Get
 
 class DataManager():
 
-    def create_user(self, email, password):
+    def create_user(self, username, email, password):
         """Create and save a new user to the database.
 
         Args:
+            username (str): The username of the user.
             email (str): The email of the user.
             password (str): The password of the user.
 
@@ -16,7 +17,7 @@ class DataManager():
             User: The newly created User object if successful.
             None: If an error occurred.
         """
-        new_user = User(email=email, password=password)
+        new_user = User(username=username, email=email, password=password)
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -79,7 +80,7 @@ class DataManager():
             bool: True if a user was successfully deleted, False otherwise.
         """
         try:
-            user_deleted = User.query.filter(User.id == user_id).delete()
+            user_deleted = User.query.filter(User.user_id == user_id).delete()
             db.session.commit()
             return user_deleted > 0 # returns True if a user was deleted
         except Exception as e:
@@ -240,7 +241,7 @@ class DataManager():
             name (str): The name of the place to explore.
             coordinates (str): The latitude and longitude of the place to explore.
             address (str): The address of the place to explore.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             price (str): The price of the place to explore (e.g. entry fee).
             comments (str): Any comments pertaining that place to explore.
             external_url (str): Link to related website (e.g. buy tickets).
@@ -275,7 +276,7 @@ class DataManager():
             name (str): New explore place name to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New explore address to update.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             price (str): New explore price to update.
             comments (str): New comment to update.
             external_url (str): New external link to update.
@@ -376,7 +377,7 @@ class DataManager():
             coordinates (str): The latitude and longitude of the stay.
             address (str): The address of the stay.
             price (str): The price of the stay.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             status (str): The status of the stay (e.g. paid, reserved).
             comments (str): Any comments pertaining that stay.
             external_url (str): Link to related website (e.g. reservation confirmation).
@@ -412,7 +413,7 @@ class DataManager():
             name (str): New stay type to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             price (str): New price to update.
             status (str): New status to update
             comments (str): New comment to update.
@@ -515,7 +516,7 @@ class DataManager():
             name (str): The name of eat&drink place.
             coordinates(str): The latitude and longitude of the eat&drink place.
             address (str): The address of the eat&drink place.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             comments (str): Any comments pertaining that place.
             external_url (str): Link to related website (e.g. restaurant's menu).
 
@@ -548,7 +549,7 @@ class DataManager():
             name (str): New eat&drink name to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             comments (str): New comment to update.
             external_url (str): New external link to update.
 
@@ -646,7 +647,7 @@ class DataManager():
             name (str): The name of essentials place.
             coordinates(str): The latitude and longitude of the essentials place.
             address (str): The address of the essentials place.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             comments (str): Any comments pertaining that place.
             external_url (str): Link to related website.
 
@@ -679,7 +680,7 @@ class DataManager():
             name (str): New essentials name to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             comments (str): New comment to update.
             external_url (str): New external link to update.
 
@@ -777,7 +778,7 @@ class DataManager():
             name (str): The name of getting_around place.
             coordinates(str): The latitude and longitude of the getting_around place.
             address (str): The address of the getting_around place.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             comments (str): Any comments pertaining that place.
             external_url (str): Link to related website.
 
@@ -810,7 +811,7 @@ class DataManager():
             name (str): New name to update.
             coordinates (str): New latitude and longitude to update.
             address (str): New address to update.
-            day (int): The day on which this point will be used during the trip.
+            day (array): The day(s) on which this point will be used during the trip.
             comments (str): New comment to update.
             external_url (str): New external link to update.
 

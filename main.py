@@ -38,8 +38,8 @@ db.init_app(app)
 data_manager = DataManager()
 
 # Used only to create the tables
-# with app.app_context():
-#     db.create_all()
+with app.app_context():
+    db.create_all()
 
 def admin_required(fn):
     @wraps(fn)
@@ -61,43 +61,56 @@ def login():
     if user:
         user_dictionary = user.to_dict()
         if not user_dictionary or user_dictionary['password'] != password:
-            return jsonify(msg="Bad username or password"), 401
+            return jsonify(msg="Bad email or password"), 401
+    else:
+        return jsonify({ 'msg': 'This user does not exist.'}), 500
 
-    access_token = create_access_token(identity=email, additional_claims={"role": "user"})
+    access_token = create_access_token(identity=str(user.user_id), additional_claims={"role": "user"})
     return jsonify(access_token=access_token)
 
 
 @app.route('/register', methods=['POST'])
 def register():
+    username = request.json.get('username')
     email = request.json.get('email')
     password = request.json.get('password')
 
-    if not email or not password:
-        return jsonify({'msg': 'Email and password are required'}), 400
+    if not username or not email or not password:
+        return jsonify({'msg': 'Username, email and password are required'}), 400
 
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return jsonify({'msg': 'Email already registered'}), 400
 
-    new_user = data_manager.create_user(email, password)
+    new_user = data_manager.create_user(username, email, password)
     if not new_user:
         return jsonify({'msg': 'Error creating user'}), 500
 
     return jsonify({'msg': 'User created successfully'}), 201
 
 
+@app.route("/me", methods=["GET"])
+@jwt_required()
+def get_current_user():
+    user_id = int(get_jwt_identity())  # this comes from the token
+    user = User.query.get(user_id)
+    if user:
+        return jsonify(user.to_dict())
+    return jsonify({"error": "User not found"}), 404
+
+
 @app.route('/trips', methods=['GET'])
 @jwt_required()
 def get_all_trips():
     """ Retrieves and displays all trips. """
-    current_email = get_jwt_identity()
-    user = User.query.filter_by(email=current_email).first()
-    if user:
-        user_dictionary = user.to_dict()
-        if not user_dictionary:
-            return jsonify(msg="This user doesn't exist"), 401
+    user_id = int(get_jwt_identity())
+    user = User.query.filter_by(user_id=user_id).first()
+    if not user:
+        return jsonify(msg="This user doesn't exist"), 401
 
-    trips = data_manager.get_trips(user_dictionary["id"])
+    user_dictionary = user.to_dict()
+
+    trips = data_manager.get_trips(user_dictionary["user_id"])
     return jsonify([trip.to_dict() for trip in trips])
 
 
@@ -112,7 +125,7 @@ def create_trip():
         return jsonify(msg="Invalid user"), 401
 
     trip_name = request.json.get("name", "New Trip")
-    trip = data_manager.create_trip(trip_name, user.id)
+    trip = data_manager.create_trip(trip_name, user.user_id)
     return jsonify({"trip": trip.to_dict()}), 201
 
 

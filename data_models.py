@@ -1,12 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
 
 class User(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String, nullable=False)
     email = Column(String, nullable=False)
     password = Column(String, nullable=False)
 
@@ -14,7 +15,8 @@ class User(db.Model):
     trips = relationship("Trip", backref="user")
     def to_dict(self):
         return {
-            "id": self.id,
+            "user_id": self.user_id,
+            "username": self.username,
             "email": self.email,
             "password": self.password}
 
@@ -22,7 +24,7 @@ class User(db.Model):
 class Trip(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey("user.id"))
+    user_id = Column(Integer, ForeignKey("user.user_id"))
     def to_dict(self):
         return {
             "id": self.id,
@@ -43,7 +45,7 @@ class Explore(db.Model):
     name = Column(String, nullable=False)
     coordinates = Column(String)
     address = Column(String)
-    day = Column(Integer, default=1)
+    day = Column(JSON, default=[1])
     price = Column(String)
     comments = Column(String)
     external_url = Column(String)
@@ -68,7 +70,7 @@ class Stay(db.Model):
     coordinates = Column(String)
     address = Column(String)
     price = Column(String)
-    day = Column(Integer, default=1)
+    day = Column(JSON, default=[1])
     status = Column(String)
     comments = Column(String)
     external_url = Column(String)
@@ -93,7 +95,7 @@ class EatDrink(db.Model):
     name = Column(String)
     coordinates = Column(String)
     address = Column(String)
-    day = Column(Integer, default=1)
+    day = Column(JSON, default=[1])
     comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
@@ -115,7 +117,7 @@ class Essentials(db.Model):
     name = Column(String)
     coordinates = Column(String)
     address = Column(String)
-    day = Column(Integer, default=1)
+    day = Column(JSON, default=[1])
     comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
@@ -137,7 +139,7 @@ class GettingAround(db.Model):
     name = Column(String)
     coordinates = Column(String)
     address = Column(String)
-    day = Column(Integer, default=1)
+    day = Column(JSON, default=[1])
     comments = Column(String)
     external_url = Column(String)
     trip_id = Column(Integer, ForeignKey("trip.id"))
