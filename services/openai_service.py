@@ -175,3 +175,42 @@ def get_destination_suggestion(location, goal, interests, length, transport, pre
     text_content = re.sub(r"^\s*```[a-zA-Z]*\s*|\s*```\s*$", "", text_content)
     return text_content
 
+
+def get_openai_tips(elements):
+    SYSTEM_PROMPT = """
+        You are an intelligent travel advisor. Your job is to return tips for trip based on a given list 
+        of elements, which are places the traveller intends to visit.
+        Return 5 to 10 thoughtful and useful tips, tailored to the region the traveller is visiting.
+        Add a couple of emojis in the returned text.
+        Return your answer in valid JSON format like this:
+        { 
+            "tips": [
+            "Not many people speak English...", 
+            "Try the dish .... at the restaurant ...",
+            "If you are travelling in may, there is a festival that happens...",
+            "Don't forget to bring...",
+            "Some places can be dangerous for tourists, hire a guide, etc ☂️" 
+            ]
+        },
+        """
+
+    if not api_key:
+        raise RuntimeError("Set OPENAI_API_KEY in your environment.")
+
+    client = OpenAI(api_key=api_key)
+
+    user_block = f"Elements:\n{elements}"
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_block},
+        ],
+        temperature=0
+    )
+
+    text_content = response.choices[0].message.content.strip()
+    # strip accidental code fences if any
+    text_content = re.sub(r"^\s*```[a-zA-Z]*\s*|\s*```\s*$", "", text_content)
+    return text_content

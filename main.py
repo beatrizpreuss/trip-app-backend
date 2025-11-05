@@ -18,7 +18,8 @@ from services.overpass_queries import (
     query_essentials,
     query_getting_around
 )
-from services.openai_service import get_selection_via_openai, get_destination_suggestion
+from services.openai_service import get_selection_via_openai, \
+    get_destination_suggestion, get_openai_tips
 
 app = Flask(__name__)
 CORS(app)
@@ -118,8 +119,8 @@ def get_all_trips():
 @jwt_required()
 def create_trip():
     """Creates a new trip object, with the temporary name of New Trip, and saves it to the database. """
-    current_email = get_jwt_identity()
-    user = User.query.filter_by(email=current_email).first()
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first()
 
     if not user:
         return jsonify(msg="Invalid user"), 401
@@ -517,6 +518,48 @@ def get_suggestions(trip_id):
             {"error": "Invalid JSON from OpenAI", "raw": clean_text}), 500
 
     return jsonify(top_selection), 200
+
+
+@app.route('/trips/<int:trip_id>/tips', methods=['GET'])
+@jwt_required()
+def get_travel_tips(trip_id):
+
+    # Step 1: Fetch all existing places for this trip
+    explore = data_manager.get_explore_by_trip(trip_id)
+    stays = data_manager.get_stays_by_trip(trip_id)
+    eat_drink = data_manager.get_eat_drink_by_trip(trip_id)
+    essentials = data_manager.get_essentials_by_trip(trip_id)
+    getting_around = data_manager.get_getting_around_by_trip(trip_id)
+
+    # Combine into a single list of dicts with name + lat/lon
+    existing_markers = []
+    for item_list in [explore, stays, eat_drink, essentials, getting_around]:
+        for item in item_list:
+            if item.coordinates is not None:
+                existing_markers.append({
+                    "name": item.name,
+                    "lat": float(item.coordinates.split(",")[0].strip()),
+                    "lon": float(item.coordinates.split(",")[1].strip())
+            })
+
+    # Step 2: Call AI function to create tips based on existing markers
+    try:
+        trip_tips = get_openai_tips(existing_markers)
+
+    except Exception as e:
+        print("Error reaching OpenAI:", str(e))
+        return jsonify({"error": "openai_unreachable"}), 502
+
+    try:
+        clean_text = re.sub(r"^```(?:json)?|```$", "", trip_tips.strip(), flags=re.MULTILINE)
+        tips = json.loads(clean_text)
+
+    except json.JSONDecodeError:
+        # If GPT response isn't valid JSON, return it as-is for debugging
+        return jsonify(
+            {"error": "Invalid JSON from OpenAI", "raw": clean_text}), 500
+
+    return jsonify(tips), 200
 
 
 if __name__ == "__main__":
