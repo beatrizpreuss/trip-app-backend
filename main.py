@@ -1,5 +1,6 @@
 import os, json
 import re
+from datetime import timedelta
 
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
@@ -25,7 +26,12 @@ app = Flask(__name__)
 CORS(app)
 
 app.config['JWT_SECRET_KEY'] = 'your_secret_key_here'
+# Set access token expiration to 1 hour
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+# Set refresh token expiration to 30 days
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 jwt = JWTManager(app)
+
 
 # Build absolute path to database
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -39,8 +45,8 @@ db.init_app(app)
 data_manager = DataManager()
 
 # Used only to create the tables
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+#     db.create_all()
 
 def admin_required(fn):
     @wraps(fn)
@@ -65,6 +71,7 @@ def login():
             return jsonify(msg="Bad email or password"), 401
     else:
         return jsonify({ 'msg': 'This user does not exist.'}), 500
+
 
     access_token = create_access_token(identity=str(user.user_id), additional_claims={"role": "user"})
     return jsonify(access_token=access_token)
