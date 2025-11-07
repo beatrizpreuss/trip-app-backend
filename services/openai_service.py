@@ -112,7 +112,7 @@ def get_selection_via_openai(user_request, elements):
     return text
 
 
-def get_destination_suggestion(location, goal, interests, length, transport, preferred, avoid, season, acc):
+def get_destination_suggestion(location, goal, interests, fame, length, transport, preferred, avoid, season, acc):
     system_prompt = """
         You are an intelligent travel destination suggestor. 
         Your goal is to recommend 5 specific destinations that best match the user's preferences.
@@ -146,6 +146,7 @@ def get_destination_suggestion(location, goal, interests, length, transport, pre
         - Where they live: {location}
         - Trip goal: {goal}
         - Their interests: {interests}
+        - What type of destination (famous, hidden-gem, mix of both): {fame}
         - Available time: {length}
         - They would prefer to travel by: {transport}
         - Preferred places (if any): {preferred}

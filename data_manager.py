@@ -69,6 +69,37 @@ class DataManager():
             return None
 
 
+    def update_user(self, user_id, username, email, password, ):
+        """Update an existing user.
+
+        Args:
+            user_id (int): The ID of the user.
+            username (str): New username to update.
+            email (str): New email to update.
+            password (str): New password to update.
+
+        Returns:
+            User: The updated user object if successful.
+            None: If the user is not found or an error occurred.
+        """
+        user = User.query.get(user_id)
+        if not user:
+            return None
+        if username:
+            user.username = username
+        if email:
+            user.email = email
+        if password:
+            user.password = password
+        try:
+            db.session.commit()
+            return user
+        except Exception as e:
+            db.session.rollback()
+            print("An error has occurred while updating user: ", str(e))
+            return None
+
+
     def delete_user(self, user_id):
         """
         Deletes a user from the database by their user ID.

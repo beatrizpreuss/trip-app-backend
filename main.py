@@ -107,6 +107,23 @@ def get_current_user():
     return jsonify({"error": "User not found"}), 404
 
 
+@app.route("/me", methods=["PUT"])
+@jwt_required()
+def update_current_user():
+    user_id = int(get_jwt_identity())  # this comes from the token
+    user = User.query.get(user_id)
+    if user:
+        data = request.get_json()
+        new_username = data.get("username")
+        new_email = data.get("email")
+        new_password = data.get("password")
+
+        updated_user = data_manager.update_user(user_id, new_username, new_email, new_password)
+        return jsonify(updated_user.to_dict())
+
+    return jsonify({"error": "User not found"}), 404
+
+
 @app.route('/trips', methods=['GET'])
 @jwt_required()
 def get_all_trips():
@@ -350,6 +367,7 @@ def get_destination():
     goal = data.get("goal")
     interests = data.get("interests")
     length = data.get("length")
+    fame = data.get("type")
     transport = data.get("transport")
     preferred = data.get("preferred")
     avoid = data.get("avoid")
@@ -358,7 +376,7 @@ def get_destination():
 
     # Step 3: Call AI function to get suggestions of destinations
     try:
-        destinations = get_destination_suggestion(location, goal, interests, length, transport, preferred, avoid, season, acc)
+        destinations = get_destination_suggestion(location, goal, interests, fame, length, transport, preferred, avoid, season, acc)
         print("AI destinations suggestions:", destinations)
     except Exception as e:
         print("Error reaching OpenAI:", str(e))
