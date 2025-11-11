@@ -154,7 +154,7 @@ def create_trip():
     return jsonify({"trip": trip.to_dict()}), 201
 
 
-@app.route('/trips/<int:trip_id>', methods=['DELETE'])
+@app.route('/trips/<trip_id>', methods=['DELETE'])
 @jwt_required()
 def delete_trip(trip_id):
     """Deletes an entire trip from the database. """
@@ -162,7 +162,7 @@ def delete_trip(trip_id):
     return jsonify({"message": "Trip deleted", "trip_id": trip_id}), 200
 
 
-@app.route('/trips/<int:trip_id>', methods=['GET'])
+@app.route('/trips/<trip_id>', methods=['GET'])
 @jwt_required()
 def open_trip(trip_id):
     """ Retrieves and displays all tables from the trip with the specified ID. """
@@ -184,7 +184,7 @@ def open_trip(trip_id):
     })
 
 
-@app.route('/trips/<int:trip_id>', methods=['PUT'])
+@app.route('/trips/<trip_id>', methods=['PUT'])
 @jwt_required()
 def update_trip(trip_id):
     """Updates all data from the forms."""
@@ -347,7 +347,7 @@ def update_trip(trip_id):
         "getting_around": [around.to_dict() for around in getting_around]
         })
 
-@app.route('/trips/<int:trip_id>/map', methods=['GET'])
+@app.route('/trips/<trip_id>/map', methods=['GET'])
 # """" Displays the map of the trip with the specified ID, along with all
 # the locations that were added to the map. # """"
 
@@ -397,42 +397,42 @@ def get_destination():
 # # """" Renders the page with the AI suggestions# """"
 
 
-@app.route('/trips/<int:trip_id>/explore', methods=['GET'])
+@app.route('/trips/<trip_id>/explore', methods=['GET'])
 @jwt_required()
 def get_explore_of_trip(trip_id):
     explore = data_manager.get_explore_by_trip(trip_id)
     return jsonify([expl.to_dict() for expl in explore])
 
 
-@app.route('/trips/<int:trip_id>/stays', methods=['GET'])
+@app.route('/trips/<trip_id>/stays', methods=['GET'])
 @jwt_required()
 def get_stays_of_trip(trip_id):
     stays = data_manager.get_stays_by_trip(trip_id)
     return jsonify([stay.to_dict() for stay in stays])
 
 
-@app.route('/trips/<int:trip_id>/eat-drink', methods=['GET'])
+@app.route('/trips/<trip_id>/eat-drink', methods=['GET'])
 @jwt_required()
 def get_eat_drink_of_trip(trip_id):
     eat_drink = data_manager.get_eat_drink_by_trip(trip_id)
     return jsonify([eat.to_dict() for eat in eat_drink])
 
 
-@app.route('/trips/<int:trip_id>/essentials', methods=['GET'])
+@app.route('/trips/<trip_id>/essentials', methods=['GET'])
 @jwt_required()
 def get_essentials_of_trip(trip_id):
     essentials = data_manager.get_essentials_by_trip(trip_id)
     return jsonify([essential.to_dict() for essential in essentials])
 
 
-@app.route('/trips/<int:trip_id>/getting-around', methods=['GET'])
+@app.route('/trips/<trip_id>/getting-around', methods=['GET'])
 @jwt_required()
 def get_getting_around_of_trip(trip_id):
     getting_around = data_manager.get_getting_around_by_trip(trip_id)
     return jsonify([around.to_dict() for around in getting_around])
 
 
-@app.route('/trips/<int:trip_id>/suggestions', methods=['POST'])
+@app.route('/trips/<trip_id>/suggestions', methods=['POST'])
 @jwt_required()
 def get_suggestions(trip_id):
 
@@ -545,7 +545,7 @@ def get_suggestions(trip_id):
     return jsonify(top_selection), 200
 
 
-@app.route('/trips/<int:trip_id>/tips', methods=['GET'])
+@app.route('/trips/<trip_id>/tips', methods=['GET'])
 @jwt_required()
 def get_travel_tips(trip_id):
 

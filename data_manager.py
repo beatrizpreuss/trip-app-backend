@@ -1,5 +1,5 @@
 from sqlalchemy.exc import SQLAlchemyError
-
+import uuid
 from data_models import db, User, Trip, Stay, Explore, EatDrink, Essentials, GettingAround
 
 
@@ -132,7 +132,7 @@ class DataManager():
             Trip: The newly created trip object if successful.
             None: If an error occurred.
         """
-        new_trip = Trip(name=name, user_id=user_id)
+        new_trip = Trip(id=str(uuid.uuid4()), name=name, user_id=user_id)
         try:
             db.session.add(new_trip)
             db.session.commit()
@@ -140,6 +140,7 @@ class DataManager():
         except Exception as e:
             db.session.rollback()
             print("An error has occurred while creating trip: ", str(e))
+            raise
 
 
     def get_trips(self, user_id):

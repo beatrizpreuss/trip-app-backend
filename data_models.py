@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, ForeignKey, JSON
 from sqlalchemy.orm import relationship
+import uuid
 
 db = SQLAlchemy()
 
@@ -22,7 +23,7 @@ class User(db.Model):
 
 
 class Trip(db.Model):
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("user.user_id"))
     def to_dict(self):
