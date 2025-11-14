@@ -385,7 +385,7 @@ def get_destination():
     # Step 3: Call AI function to get suggestions of destinations
     try:
         destinations = get_destination_suggestion(location, goal, interests, fame, length, transport, preferred, avoid, season, acc)
-        print("AI destinations suggestions:", destinations)
+        # print("AI destinations suggestions:", destinations)
     except Exception as e:
         print("Error reaching OpenAI:", str(e))
         return jsonify({"error": "openai_unreachable"}), 502
@@ -478,7 +478,7 @@ def get_suggestions(trip_id):
 
     # Step 4: Fetch results from overpass
     try:
-        print("Query:" , my_query)
+        # print("Query:" , my_query)
         results = fetch_overpass_results(my_query)
 
     except Exception as e:
@@ -527,7 +527,7 @@ def get_suggestions(trip_id):
                 el["lat"] = lat
                 el["lon"] = lon
                 filtered_elements.append(el)
-    print("Filtered elements: ", filtered_elements)
+    # print("Filtered elements: ", filtered_elements)
         # else:
             # print(f"Skipping element with missing coordinates: {el}")
 
