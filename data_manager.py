@@ -320,20 +320,13 @@ class DataManager():
         explore = Explore.query.get(explore_id)
         if not explore:
             return None
-        if name:
-            explore.name = name
-        if coordinates:
-            explore.coordinates = coordinates
-        if address:
-            explore.address = address
-        if day:
-            explore.day = day
-        if price:
-            explore.price = price
-        if comments:
-            explore.comments = comments
-        if external_url:
-            explore.external_url = external_url
+        explore.name = name
+        explore.coordinates = coordinates
+        explore.address = address
+        explore.day = day
+        explore.price = price
+        explore.comments = comments
+        explore.external_url = external_url
         try:
             db.session.commit()
             return explore
@@ -458,22 +451,14 @@ class DataManager():
         stay = Stay.query.get(stay_id)
         if not stay:
             return None
-        if name:
-            stay.name = name
-        if coordinates:
-            stay.coordinates = coordinates
-        if address:
-            stay.address = address
-        if day:
-            stay.day = day
-        if price:
-            stay.price = price
-        if status:
-            stay.status = status
-        if comments:
-            stay.comments = comments
-        if external_url:
-            stay.external_url = external_url
+        stay.name = name
+        stay.coordinates = coordinates
+        stay.address = address
+        stay.day = day
+        stay.price = price
+        stay.status = status
+        stay.comments = comments
+        stay.external_url = external_url
         try:
             db.session.commit()
             return stay
@@ -592,18 +577,12 @@ class DataManager():
         eat_drink = EatDrink.query.get(eat_drink_id)
         if not eat_drink:
             return None
-        if name:
-            eat_drink.name = name
-        if coordinates:
-            eat_drink.coordinates = coordinates
-        if address:
-            eat_drink.address = address
-        if day:
-            eat_drink.day = day
-        if comments:
-            eat_drink.comment = comments
-        if external_url:
-            eat_drink.external_url = external_url
+        eat_drink.name = name
+        eat_drink.coordinates = coordinates
+        eat_drink.address = address
+        eat_drink.day = day
+        eat_drink.comment = comments
+        eat_drink.external_url = external_url
         try:
             db.session.commit()
             return eat_drink
@@ -723,18 +702,12 @@ class DataManager():
         essentials = Essentials.query.get(essentials_id)
         if not essentials:
             return None
-        if name:
-            essentials.name = name
-        if coordinates:
-            essentials.coordinates = coordinates
-        if address:
-            essentials.address = address
-        if day:
-            essentials.day = day
-        if comments:
-            essentials.comment = comments
-        if external_url:
-            essentials.external_url = external_url
+        essentials.name = name
+        essentials.coordinates = coordinates
+        essentials.address = address
+        essentials.day = day
+        essentials.comment = comments
+        essentials.external_url = external_url
         try:
             db.session.commit()
             return essentials
@@ -854,18 +827,12 @@ class DataManager():
         getting_around = GettingAround.query.get(getting_around_id)
         if not getting_around:
             return None
-        if name:
-            getting_around.name = name
-        if coordinates:
-            getting_around.coordinates = coordinates
-        if address:
-            getting_around.address = address
-        if day:
-            getting_around.day = day
-        if comments:
-            getting_around.comment = comments
-        if external_url:
-            getting_around.external_url = external_url
+        getting_around.name = name
+        getting_around.coordinates = coordinates
+        getting_around.address = address
+        getting_around.day = day
+        getting_around.comment = comments
+        getting_around.external_url = external_url
         try:
             db.session.commit()
             return getting_around
