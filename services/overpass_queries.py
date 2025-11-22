@@ -66,7 +66,7 @@ def query_places_explore_indoor(lat: float, lon: float, radius: int) -> str:
           way["historic"][name](around:{radius},{lat},{lon});
           relation["historic"][name](around:{radius},{lat},{lon});
         );
-        out center;
+        out center 200;
         """
 
 
