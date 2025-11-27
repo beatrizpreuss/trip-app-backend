@@ -1,5 +1,6 @@
 from sqlalchemy.exc import SQLAlchemyError
 import uuid
+from datetime import date
 from data_models import db, User, Trip, Stay, Explore, EatDrink, Essentials, GettingAround
 
 
@@ -122,7 +123,7 @@ class DataManager():
 
     # TRIP FUNCTIONS
 
-    def create_trip(self, name, user_id):
+    def create_trip(self, name, user_id, date_str=None):
         """Create and save a new trip to the database.
 
         Args:
@@ -132,7 +133,11 @@ class DataManager():
             Trip: The newly created trip object if successful.
             None: If an error occurred.
         """
-        new_trip = Trip(id=str(uuid.uuid4()), name=name, user_id=user_id)
+        if date_str:
+            event_date = date.fromisoformat(date_str)
+            new_trip = Trip(id=str(uuid.uuid4()), name=name, user_id=user_id, date=event_date)
+        else:
+            new_trip = Trip(id=str(uuid.uuid4()), name=name, user_id=user_id)
         try:
             db.session.add(new_trip)
             db.session.commit()
@@ -181,7 +186,7 @@ class DataManager():
             return None
 
 
-    def update_trip(self, trip_id, name):
+    def update_trip(self, trip_id, name, date_str=None):
         """Update an existing trip's name.
 
         Args:
@@ -197,6 +202,10 @@ class DataManager():
             return None
         if name:
             trip.name = name
+        if date_str:
+            event_date = date.fromisoformat(date_str)
+            print(date_str, "event_date")
+            trip.date = event_date
         try:
             db.session.commit()
             return trip

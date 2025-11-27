@@ -158,7 +158,8 @@ def create_trip():
         return jsonify(msg="Invalid user"), 401
 
     trip_name = request.json.get("name", "New Trip")
-    trip = data_manager.create_trip(trip_name, user.user_id)
+    trip_date = request.json.get("date")
+    trip = data_manager.create_trip(trip_name, user.user_id, trip_date)
     return jsonify({"trip": trip.to_dict()}), 201
 
 
@@ -200,7 +201,8 @@ def update_trip(trip_id):
 
     # Update trip name if provided
     new_name = data.get("name")
-    trip = data_manager.update_trip(trip_id, new_name)
+    new_date = data.get("date")
+    trip = data_manager.update_trip(trip_id, new_name, new_date)
     if not trip:
         return jsonify({"error": "Trip not found or update failed"}), 404
 

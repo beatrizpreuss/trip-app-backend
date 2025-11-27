@@ -26,11 +26,13 @@ class Trip(db.Model):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("user.user_id"))
+    date = Column(db.Date, nullable=True)
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
-            "user_id": self.user_id
+            "user_id": self.user_id,
+            "date": self.date.isoformat() if self.date else None
         }
 
     # One trip can have many explores, stays, eat&drink, essentials, and getting around entries
