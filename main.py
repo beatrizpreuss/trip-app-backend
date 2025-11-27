@@ -23,7 +23,12 @@ from services.openai_service import get_selection_via_openai, \
     get_destination_suggestion, get_openai_tips
 
 app = Flask(__name__)
-CORS(app)
+CORS(app,
+     origins=["http://localhost:5173"],  # frontend origin
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+     )
 
 app.config['JWT_SECRET_KEY'] = 'your_secret_key_here'
 # Set access token expiration to 1 hour
