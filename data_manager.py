@@ -590,7 +590,7 @@ class DataManager():
         eat_drink.coordinates = coordinates
         eat_drink.address = address
         eat_drink.day = day
-        eat_drink.comment = comments
+        eat_drink.comments = comments
         eat_drink.external_url = external_url
         try:
             db.session.commit()
@@ -715,7 +715,7 @@ class DataManager():
         essentials.coordinates = coordinates
         essentials.address = address
         essentials.day = day
-        essentials.comment = comments
+        essentials.comments = comments
         essentials.external_url = external_url
         try:
             db.session.commit()
@@ -840,7 +840,7 @@ class DataManager():
         getting_around.coordinates = coordinates
         getting_around.address = address
         getting_around.day = day
-        getting_around.comment = comments
+        getting_around.comments = comments
         getting_around.external_url = external_url
         try:
             db.session.commit()
