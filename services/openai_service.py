@@ -123,6 +123,7 @@ def get_destination_suggestion(location, goal, interests, fame, length, transpor
         - Other tips that may be useful to the user, such as safety, items to not forget, etc.
         
         Be creative but realistic — suggest real, accessible destinations.
+        If the user chooses to travel only by public transportation, do NOT suggest air travel.
         Keep the tone friendly and informative.
         Include emojis on the name (flag of the country) and a few others inside the text.
         Return your answer in valid JSON format like this:
@@ -133,7 +134,7 @@ def get_destination_suggestion(location, goal, interests, fame, length, transpor
               "description": "A cultural hub with temples and food experiences...⛩️",
               "highlights": ["The temple xxx is a great", "The gardens in ... are a must see", " Try the traditional cuisine (order a plate of ...."],
               "travel_practicality": {"best_time_to_visit": "Autumn for beautiful fall colors...🍂",
-                                    "distance": "Approx. 1,500 km from...", 
+                                    "distance": "Approx. 1,500 km from..., 10 hours away by train", 
                                     "transport": "Train to Berlin..."},
             "other_tips": "Not many people speak English..., Don't forget to bring..., Some places can be dangerous for tourists, hire a guide, etc ☂️"
             },
@@ -148,7 +149,7 @@ def get_destination_suggestion(location, goal, interests, fame, length, transpor
         - Their interests: {interests}
         - What type of destination (famous, hidden-gem, mix of both): {fame}
         - Available time: {length}
-        - They would prefer to travel by: {transport}
+        - They want to travel only by: {transport}
         - Preferred places (if any): {preferred}
         - Places to avoid (if any): {avoid}
         - Preferred travel season: {season}
