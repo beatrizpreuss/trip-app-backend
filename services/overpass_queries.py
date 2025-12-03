@@ -8,7 +8,6 @@ def query_places_explore_outdoor(lat: float, lon: float, radius: int) -> str:
     natural, leisure, tourism, hiking.
     This combines all categories safely with 'out center' and timeout.
     """
-    # Define each category query
     natural_q = (
         f'node["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
         f'way["natural"~"water|lake|spring|forest"]["name"](around:{radius},{lat},{lon});'
