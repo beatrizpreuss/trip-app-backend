@@ -204,8 +204,9 @@ class DataManager():
             trip.name = name
         if date_str:
             event_date = date.fromisoformat(date_str)
-            print(date_str, "event_date")
             trip.date = event_date
+        else:
+            trip.date = None
         try:
             db.session.commit()
             return trip
