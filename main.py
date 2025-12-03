@@ -524,7 +524,19 @@ def get_suggestions(trip_id):
 
     # make sure the element has lat and lon (even when it has a center - which is displayed differently)
     print(len(results["elements"])) # see how many elements overpass returned
-    for el in results['elements']:
+
+    elements = results["elements"]
+
+    # Remove RELATIONS — they produce hundreds of thousands of entries
+    elements = [e for e in elements if e["type"] != "relation"]
+
+    # Remove relation MEMBERS that sneak in (ref/role objects)
+    elements = [e for e in elements if not ("ref" in e and "role" in e)]
+
+    # Only keep real POIs that have a name
+    elements = [e for e in elements if e.get("tags", {}).get("name")]
+
+    for el in elements:
         if el.get("nodes"):
             del el["nodes"]
         lat = el.get("lat") or el.get("center", {}).get("lat")
@@ -534,7 +546,8 @@ def get_suggestions(trip_id):
                 el["lat"] = lat
                 el["lon"] = lon
                 filtered_elements.append(el)
-    # print("Filtered elements: ", filtered_elements)
+    print("Filtered elements: ", filtered_elements)
+    print(len(filtered_elements))  # see how many filtered elements I'm sending to AI
         # else:
             # print(f"Skipping element with missing coordinates: {el}")
 
