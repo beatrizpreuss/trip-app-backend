@@ -24,7 +24,7 @@ from services.openai_service import get_selection_via_openai, \
 
 app = Flask(__name__)
 CORS(app,
-     origins=["http://localhost:5173"],  # frontend origin
+     origins=["http://localhost:5173", "https://wanderwise-frontend-cyan.vercel.app"],  # frontend origin
      supports_credentials=True,
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
