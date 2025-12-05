@@ -63,6 +63,10 @@ def admin_required(fn):
         return fn(*args, **kwargs)
     return wrapper
 
+@app.route('/', methods=['GET'])
+def index():
+        return jsonify({"message": "Welcome to WanderWise Backend"})
+
 
 @app.route('/login', methods=['POST'])
 def login():
